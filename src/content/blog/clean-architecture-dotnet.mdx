@@ -1,0 +1,46 @@
+# Clean Architecture in .NET, Without the Dogma
+
+Clean Architecture gets a bad reputation for one reason: people treat it as a
+checklist instead of a tool. Four concentric circles, arrows pointing inward,
+and suddenly a CRUD app has seven projects and a mapping layer for every entity.
+
+That's not the point. The point is **dependency direction** — your business
+rules should not know or care about the database, the web framework, or the
+message broker. Everything else is negotiable.
+
+## The one rule that matters
+
+Inner layers never depend on outer layers. In an ASP.NET Core app that usually
+means three things:
+
+- **Domain** — entities, value objects, and the rules that are true regardless
+  of how data is stored or displayed.
+- **Application** — use cases that orchestrate the domain. They define
+  interfaces (`IOrderRepository`) but never implement them.
+- **Infrastructure** — EF Core, HTTP clients, file storage. This is where the
+  interfaces get implemented.
+
+> If you can delete your `Infrastructure` project and your business logic still
+> compiles, you've got the direction right.
+
+## When to bend the rules
+
+A 200-line internal tool does not need this. Neither does a prototype you'll
+throw away in a month. Clean Architecture pays off when:
+
+- The system will live for years and change hands.
+- Business rules are genuinely complex and worth isolating.
+- You need to swap infrastructure (databases, providers) without a rewrite.
+
+Start simple. Add layers when a real seam appears, not before. The best
+architecture is the one your team can still understand at 4pm on a Friday.
+
+## A pragmatic starting point
+
+1. One Domain project, one Application project, one Infrastructure project, one
+   API project.
+2. Use cases as `MediatR` handlers or plain service classes — both are fine.
+3. EF Core lives in Infrastructure behind repository or `DbContext` interfaces.
+4. Validate at the edge with FluentValidation; keep the domain pure.
+
+Keep it understandable. Simple architecture beats clever complexity every time.

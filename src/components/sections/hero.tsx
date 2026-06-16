@@ -1,0 +1,170 @@
+"use client";
+
+import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowRight, Download, Github, Linkedin, Mail, Globe, MapPin } from "lucide-react";
+import { profile, socials } from "@/lib/data";
+import { ParticleField } from "@/components/depth/particle-field";
+import { Portrait } from "@/components/depth/portrait";
+import { duration, easing } from "@/lib/motion";
+
+const iconMap = { Github, Linkedin, Mail, Globe } as const;
+
+// 3-second value proof — what he's known for
+const proof = ["Clean Architecture", "Cloud-ready delivery", "Practical AI"];
+
+export function Hero() {
+  const reduce = useReducedMotion();
+  const fade = (d: number) => ({
+    initial: reduce ? { opacity: 0 } : { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: duration.calm, delay: d, ease: easing.smooth },
+  });
+
+  return (
+    <div className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden">
+      {/* dark stage so the cyan particles glow in any theme */}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 95% 85% at 60% 40%, #0b1322 0%, #070a12 70%, #05070d 100%)",
+        }}
+      />
+      <ParticleField text={profile.initials} />
+      {/* darken the left so the headline reads cleanly over the texture */}
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/75 to-[#05070d]/20"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-t from-[#05070d] via-transparent to-[#05070d]/40"
+      />
+
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 px-6 py-28 lg:grid-cols-[1.15fr_0.85fr]">
+        {/* LEFT — who / what / why */}
+        <div className="text-left">
+          <motion.div {...fade(0.05)}>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-react-cyan opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-react-cyan" />
+              </span>
+              Available for new opportunities
+            </span>
+          </motion.div>
+
+          {/* WHO */}
+          <motion.h1
+            {...fade(0.12)}
+            className="mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-[4.25rem]"
+          >
+            {profile.name}
+          </motion.h1>
+
+          {/* WHAT */}
+          <motion.p
+            {...fade(0.2)}
+            className="mt-4 text-lg font-semibold text-white sm:text-xl"
+          >
+            Software Engineer{" "}
+            <span className="text-accent">· .NET · Cloud · System Design · AI</span>
+          </motion.p>
+
+          {/* WHY (value) */}
+          <motion.p
+            {...fade(0.28)}
+            className="mt-4 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg"
+          >
+            I build reliable backend systems, clean APIs, and practical AI
+            integrations that real businesses depend on.
+          </motion.p>
+
+          {/* proof */}
+          <motion.ul {...fade(0.34)} className="mt-6 flex flex-wrap gap-2">
+            {proof.map((p) => (
+              <li
+                key={p}
+                className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-xs font-medium text-white/75 backdrop-blur"
+              >
+                {p}
+              </li>
+            ))}
+          </motion.ul>
+
+          {/* CTAs */}
+          <motion.div {...fade(0.42)} className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="#projects"
+              className="group inline-flex h-12 items-center gap-2 rounded-full bg-accent px-6 text-sm font-semibold text-brand-foreground transition-all hover:shadow-[var(--glow-lg)]"
+            >
+              View my work
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/resume"
+              className="inline-flex h-12 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 text-sm font-semibold text-white backdrop-blur transition-colors hover:border-accent/50"
+            >
+              <Download className="size-4" />
+              Download CV
+            </Link>
+            <Link
+              href="#contact"
+              className="inline-flex h-12 items-center px-3 text-sm font-semibold text-white/80 transition-colors hover:text-accent"
+            >
+              Hire me →
+            </Link>
+          </motion.div>
+
+          {/* socials + location */}
+          <motion.div {...fade(0.5)} className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="flex gap-2">
+              {socials.map((s) => {
+                const Icon = iconMap[s.icon as keyof typeof iconMap] ?? Globe;
+                return (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={s.label}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/5 text-white/70 backdrop-blur transition-all hover:-translate-y-0.5 hover:text-react-cyan hover:shadow-[var(--glow-md)]"
+                  >
+                    <Icon className="size-[18px]" />
+                  </a>
+                );
+              })}
+            </div>
+            <span className="flex items-center gap-1.5 text-sm text-white/55">
+              <MapPin className="size-4" />
+              {profile.location}
+            </span>
+          </motion.div>
+        </div>
+
+        {/* RIGHT — portrait (who, with a face = trust) */}
+        <div className="order-first lg:order-last">
+          <Portrait />
+        </div>
+      </div>
+
+      {/* scroll cue */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.1 }}
+        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2"
+      >
+        <div className="flex h-9 w-5 items-start justify-center rounded-full border-2 border-white/25 p-1">
+          <motion.span
+            animate={reduce ? undefined : { y: [0, 8, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" }}
+            className="h-1.5 w-1.5 rounded-full bg-react-cyan"
+          />
+        </div>
+      </motion.div>
+    </div>
+  );
+}

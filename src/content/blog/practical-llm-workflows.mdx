@@ -1,0 +1,41 @@
+# Practical LLM Workflows for Real Products
+
+Most LLM demos are impressive and useless. They work beautifully on stage and
+fall apart the moment a real user types something unexpected. Building AI
+features that hold up in production is a different discipline — closer to
+systems engineering than prompt-crafting.
+
+## Retrieval beats memorization
+
+Don't ask a model to recall your business data — it will confidently invent it.
+Instead, retrieve the relevant facts and put them in the prompt:
+
+1. Chunk your documents into meaningful pieces.
+2. Embed them and store the vectors.
+3. At query time, fetch the top matches and ground the model's answer in them.
+
+This **retrieval-augmented** pattern turns a creative writer into a careful
+researcher that cites what it actually knows.
+
+## Treat the LLM as an unreliable function
+
+A language model is a function that usually returns the right shape — but not
+always. Engineer around that:
+
+- **Validate the output.** Ask for JSON, then parse and verify it. Retry on
+  failure with the error fed back in.
+- **Constrain the task.** Narrow, well-defined jobs ("classify this ticket")
+  beat open-ended ones ("handle this ticket").
+- **Keep a human in the loop** for anything irreversible.
+
+> The difference between a demo and a product is everything you do *after* the
+> model responds.
+
+## Measure, don't vibe
+
+Build a small evaluation set of real inputs and expected behaviors. Run it on
+every prompt change. Without it, you're tuning blind and every "improvement" is
+a guess.
+
+Reliable AI features aren't magic — they're ordinary good engineering applied to
+a probabilistic component. Constrain it, ground it, validate it, and measure it.

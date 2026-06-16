@@ -1,0 +1,392 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Immersive Depth — react.dev cyan/blue accents over a deep-space canvas.
+  Light = airy white; Dark = luminous midnight where the cyan glows.
+*/
+:root {
+  --wash: #ffffff;
+  --wash-2: #f6f7f9;
+  --card: #f6f7f9;
+  --border: #e7e9ee;
+  --highlight: #e6f7ff;
+
+  --primary: #1c2026;
+  --secondary: #404756;
+  --tertiary: #5e687e;
+
+  --brand: #087ea4;
+  --brand-strong: #066b8c;
+  --brand-foreground: #ffffff;
+  --accent: #0aa3c2; /* cyan that reads on white */
+  --glow: #58c4dc;
+  --react-cyan: #61dafb;
+
+  /* 3-tier glow scale — use shadow-[var(--glow-sm|md|lg)], never ad-hoc px */
+  --glow-sm: 0 0 12px color-mix(in srgb, var(--glow) 55%, transparent);
+  --glow-md: 0 0 22px color-mix(in srgb, var(--glow) 50%, transparent);
+  --glow-lg: 0 0 32px color-mix(in srgb, var(--glow) 45%, transparent);
+
+  --ring: #0aa3c2;
+  --radius: 1rem;
+  --ease-smooth: cubic-bezier(0.21, 0.47, 0.32, 0.98);
+}
+
+/*
+  SPACING SYSTEM (Tailwind 4px scale, restricted ladder):
+    2=8 · 3=12 · 4=16 · 6=24 · 8=32 · 12=48 · 16=64
+  Roles: section top clearance = Panel pt-20 sm:pt-24 ONLY (no per-section py);
+  heading→content = mt-12 sm:mt-16; eyebrow→title = mb-3; card grids = gap-6
+  (major) / gap-4 (tight) / gap-2 (pills).
+  CONTENT WIDTHS: narrow max-w-4xl (narrative) · standard max-w-5xl (dual-col)
+  · wide max-w-6xl (grids/showcase).
+*/
+
+.dark {
+  --wash: #080b12; /* deep space */
+  --wash-2: #0e131d;
+  --card: #121826;
+  --border: rgba(255, 255, 255, 0.08);
+  --highlight: rgba(88, 196, 220, 0.12);
+
+  --primary: #f1f4fa;
+  --secondary: #c3cad8;
+  --tertiary: #8b94a8;
+
+  --brand: #58c4dc;
+  --brand-strong: #7ad3e6;
+  --brand-foreground: #06121a;
+  --accent: #58c4dc;
+  --glow: #58c4dc;
+  --react-cyan: #61dafb;
+
+  --ring: #58c4dc;
+}
+
+@theme inline {
+  --color-wash: var(--wash);
+  --color-wash-2: var(--wash-2);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-highlight: var(--highlight);
+
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-accent: var(--accent);
+  --color-glow: var(--glow);
+  --color-react-cyan: var(--react-cyan);
+
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, "JetBrains Mono", monospace;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 0.35rem);
+  --radius-sm: calc(var(--radius) - 0.6rem);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--wash);
+    color: var(--primary);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+
+  /* Ambient depth glow behind everything */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        ellipse 70% 55% at 50% -8%,
+        color-mix(in srgb, var(--glow) 16%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 95% 105%,
+        color-mix(in srgb, var(--brand) 14%, transparent),
+        transparent 60%
+      );
+  }
+  .dark body::before {
+    background:
+      radial-gradient(
+        ellipse 70% 55% at 50% -6%,
+        color-mix(in srgb, var(--glow) 14%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        ellipse 60% 50% at 100% 108%,
+        color-mix(in srgb, #087ea4 22%, transparent),
+        transparent 60%
+      );
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: var(--primary);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 9px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    border-radius: 9999px;
+  }
+
+  :focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow:
+      0 0 0 2px var(--wash),
+      0 0 0 4px var(--ring);
+    border-radius: 8px;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background-image: linear-gradient(
+      115deg,
+      var(--primary) 0%,
+      var(--accent) 55%,
+      var(--react-cyan) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-cyan {
+    background-image: linear-gradient(
+      115deg,
+      var(--accent),
+      var(--react-cyan)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Frosted glass surfaces */
+  .glass {
+    background-color: color-mix(in srgb, var(--card) 55%, transparent);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid color-mix(in srgb, var(--primary) 9%, transparent);
+  }
+  .dark .glass {
+    background-color: color-mix(in srgb, #ffffff 5%, transparent);
+    border-color: color-mix(in srgb, #ffffff 10%, transparent);
+  }
+  .glass-strong {
+    background-color: color-mix(in srgb, var(--card) 72%, transparent);
+    backdrop-filter: blur(26px) saturate(170%);
+    -webkit-backdrop-filter: blur(26px) saturate(170%);
+    border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+
+  /* Glow helpers */
+  .glow-text {
+    text-shadow: 0 0 18px color-mix(in srgb, var(--glow) 40%, transparent);
+  }
+  .glow-ring {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+      0 18px 60px -22px color-mix(in srgb, var(--glow) 55%, transparent);
+  }
+  .glow-soft {
+    box-shadow: 0 24px 70px -28px color-mix(in srgb, var(--glow) 50%, transparent);
+  }
+
+  /* Animated gradient hairline border */
+  .border-gradient {
+    position: relative;
+  }
+  .border-gradient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 60%, transparent),
+      transparent 40%,
+      transparent 60%,
+      color-mix(in srgb, var(--react-cyan) 50%, transparent)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.25;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  }
+
+  .animate-marquee {
+    animation: marquee 42s linear infinite;
+  }
+  .animate-marquee-reverse {
+    animation: marquee 42s linear infinite reverse;
+  }
+  .marquee-paused .animate-marquee,
+  .marquee-paused .animate-marquee-reverse {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(4%, -5%) scale(1.06);
+  }
+  66% {
+    transform: translate(-4%, 4%) scale(0.96);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* travelling light along a hairline / through text */
+@keyframes shimmer-x {
+  from {
+    background-position: -160% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+
+/* ============================================================
+   Paged deck — one section per viewport, snap between them.
+   Enabled only on the home route (data-snap) and md+ pointers.
+   ============================================================ */
+@layer utilities {
+  .panel {
+    position: relative;
+    display: flex;
+    min-height: 100svh;
+    width: 100%;
+    flex-direction: column;
+    scroll-snap-align: start;
+  }
+}
+
+/* Paged deck driven by JS (SnapController): natural scroll within a section,
+   then a controlled glide to the next once you reach its end. Here we just
+   hide the scrollbar for the clean full-screen feel. */
+html[data-snap] {
+  scrollbar-width: none;
+}
+html[data-snap]::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+/* footer is its own full-height final page on the deck (no bleed-through) */
+html[data-snap] footer {
+  margin-top: 0;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  scroll-snap-align: start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-snap] {
+    scroll-snap-type: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  body::before {
+    display: none;
+  }
+}

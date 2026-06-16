@@ -1,0 +1,58 @@
+# Shipping a .NET API with Docker and CI/CD
+
+The goal of a deployment pipeline is boring releases. No manual steps, no "works
+on my machine," no Friday-afternoon dread. Here's a path from a fresh ASP.NET
+Core API to automated, repeatable production deploys.
+
+## Step 1 — A lean Dockerfile
+
+Use a multi-stage build so the final image ships only the runtime, not the SDK:
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY *.csproj ./
+RUN dotnet restore
+COPY . .
+RUN dotnet publish -c Release -o /app
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app .
+ENTRYPOINT ["dotnet", "Api.dll"]
+```
+
+Restoring before copying the full source means Docker caches the dependency
+layer — rebuilds only re-run when your packages actually change.
+
+## Step 2 — CI on every push
+
+A GitHub Actions workflow that builds, tests, and pushes an image:
+
+```yaml
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: 8.0.x }
+      - run: dotnet test --configuration Release
+      - run: docker build -t myapi:${{ github.sha }} .
+```
+
+Tests run before anything ships. If they fail, nothing is deployed — that's the
+whole point.
+
+## Step 3 — Safe deploys
+
+Tag images with the commit SHA so every deploy is traceable and instantly
+rollback-able. Run database migrations as an explicit, separate step — never
+silently on startup in production.
+
+> Automate the repeatable work. CI/CD, Docker, and scripts should reduce manual
+> effort, not add ceremony.
+
+Get this right once and shipping becomes a non-event — which is exactly what you
+want.
