@@ -3,6 +3,7 @@ import { listAllPosts } from "@/server/db/posts";
 import { savePost, removePost } from "@/app/admin/actions";
 import { PageHeader, AdminCard, Field, field, SubmitButton } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { MarkdownEditor } from "@/components/admin/markdown-editor";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +70,7 @@ export default async function BlogAdmin({
               </Field>
             </div>
             <Field label="Body (Markdown)">
-              <textarea name="bodyMd" rows={14} defaultValue={editing?.bodyMd} className={`${field} font-mono text-xs`} />
+              <MarkdownEditor key={editing?.id ?? "new"} defaultValue={editing?.bodyMd} />
             </Field>
             <label className="flex items-center gap-2 text-sm text-secondary">
               <input type="checkbox" name="published" defaultChecked={editing ? editing.published : true} className="size-4 accent-[var(--accent)]" />

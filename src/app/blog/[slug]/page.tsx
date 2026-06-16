@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Markdown, { type Components } from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Clock, Calendar, ArrowLeft } from "lucide-react";
 import { listPublishedPosts, getPublishedPostBySlug } from "@/server/db/posts";
 import { profile } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/json-ld";
+import { PostBody } from "@/components/markdown";
 
 export const revalidate = 3600;
 
@@ -36,41 +35,6 @@ export async function generateMetadata({
     },
   };
 }
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const md = {
-  h1: ({ node, ...p }: any) => (
-    <h2 className="mt-10 font-display text-2xl font-bold tracking-tight text-primary" {...p} />
-  ),
-  h2: ({ node, ...p }: any) => (
-    <h2 className="mt-10 font-display text-2xl font-bold tracking-tight text-primary" {...p} />
-  ),
-  h3: ({ node, ...p }: any) => (
-    <h3 className="mt-8 font-display text-xl font-semibold text-primary" {...p} />
-  ),
-  p: ({ node, ...p }: any) => <p className="mt-5 leading-relaxed text-secondary" {...p} />,
-  a: ({ node, ...p }: any) => (
-    <a className="font-medium text-accent underline-offset-4 hover:underline" {...p} />
-  ),
-  ul: ({ node, ...p }: any) => (
-    <ul className="mt-5 list-disc space-y-2 pl-6 text-secondary" {...p} />
-  ),
-  ol: ({ node, ...p }: any) => (
-    <ol className="mt-5 list-decimal space-y-2 pl-6 text-secondary" {...p} />
-  ),
-  li: ({ node, ...p }: any) => <li className="leading-relaxed" {...p} />,
-  blockquote: ({ node, ...p }: any) => (
-    <blockquote className="mt-6 border-l-2 border-accent bg-white/[0.03] py-2 pl-5 pr-4 italic text-secondary" {...p} />
-  ),
-  code: ({ node, ...p }: any) => (
-    <code className="rounded-md border border-border bg-white/[0.04] px-1.5 py-0.5 font-mono text-[0.85em] text-accent" {...p} />
-  ),
-  pre: ({ node, ...p }: any) => (
-    <pre className="mt-6 overflow-x-auto rounded-xl border border-border bg-black/40 p-4 font-mono text-sm" {...p} />
-  ),
-  hr: () => <hr className="my-10 border-border" />,
-};
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export default async function BlogPostPage({
   params,
@@ -143,9 +107,7 @@ export default async function BlogPostPage({
       </div>
 
       <div className="mt-2">
-        <Markdown remarkPlugins={[remarkGfm]} components={md as Components}>
-          {post.bodyMd}
-        </Markdown>
+        <PostBody markdown={post.bodyMd} />
       </div>
 
       <div className="mt-16 rounded-3xl glass glow-ring p-8 text-center">
