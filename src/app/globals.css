@@ -198,7 +198,7 @@
 
   /* Frosted glass surfaces */
   .glass {
-    background-color: color-mix(in srgb, var(--card) 55%, transparent);
+    background-color: color-mix(in srgb, var(--card) 80%, transparent);
     backdrop-filter: blur(18px) saturate(160%);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
     border: 1px solid color-mix(in srgb, var(--primary) 9%, transparent);

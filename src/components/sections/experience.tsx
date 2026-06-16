@@ -2,13 +2,13 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useSpring } from "motion/react";
-import { experience } from "@/lib/data";
+import type { Experience as ExperienceItem } from "@/server/db/experiences";
 import { SectionHeading } from "@/components/section-heading";
 import { Reveal } from "@/components/motion/reveal";
 import { GlassCard } from "@/components/depth/glass-card";
 import { Icon } from "@/components/icon";
 
-export function Experience() {
+export function Experience({ items }: { items: ExperienceItem[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -36,7 +36,7 @@ export function Experience() {
           />
 
           <div className="space-y-6 sm:space-y-7">
-            {experience.map((item) => (
+            {items.map((item) => (
               <Reveal key={item.title} direction="up">
                 <div className="relative pl-14 sm:pl-16">
                   {/* node */}

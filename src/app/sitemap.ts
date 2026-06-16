@@ -1,20 +1,24 @@
 import type { MetadataRoute } from "next";
-import { posts } from "@/lib/data";
+import { listPublishedPosts } from "@/server/db/posts";
 
 const base = "https://mihad.site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["", "/blog", "/resume"].map((path) => ({
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const posts = await listPublishedPosts();
+
+  const routes: MetadataRoute.Sitemap = ["", "/blog", "/resume"].map((path) => ({
     url: `${base}${path}`,
     lastModified: new Date(),
-    changeFrequency: "monthly" as const,
+    changeFrequency: "monthly",
     priority: path === "" ? 1 : 0.7,
   }));
 
-  const blog = posts.map((p) => ({
+  const blog: MetadataRoute.Sitemap = posts.map((p) => ({
     url: `${base}/blog/${p.slug}`,
-    lastModified: new Date(p.date),
-    changeFrequency: "yearly" as const,
+    lastModified: p.publishedAt ? new Date(p.publishedAt) : new Date(),
+    changeFrequency: "yearly",
     priority: 0.6,
   }));
 

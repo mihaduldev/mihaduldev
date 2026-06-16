@@ -1,12 +1,12 @@
 "use client";
 
 import { ArrowUpRight, Github, Star } from "lucide-react";
-import { projects } from "@/lib/data";
+import type { Project } from "@/server/db/projects";
 import { SectionHeading } from "@/components/section-heading";
 import { RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { GlassCard } from "@/components/depth/glass-card";
 
-export function Projects() {
+export function Projects({ projects }: { projects: Project[] }) {
   return (
     <div className="relative w-full">
       <div className="mx-auto max-w-6xl px-6">

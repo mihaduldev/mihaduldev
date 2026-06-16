@@ -2,11 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AmbientBackground } from "@/components/depth/ambient-background";
-import { FloatingNav } from "@/components/depth/floating-nav";
-import { ScrollProgress } from "@/components/depth/scroll-progress";
-import { Footer } from "@/components/depth/footer";
-import { profile } from "@/lib/data";
+import { SiteChrome, SiteFooter } from "@/components/site-chrome";
+import { JsonLd } from "@/components/seo/json-ld";
+import { profile, socials } from "@/lib/data";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -71,9 +69,35 @@ export const viewport: Viewport = {
   ],
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: profile.name,
+      inLanguage: "en",
+    },
+    {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
+      name: profile.fullName,
+      alternateName: profile.name,
+      jobTitle: profile.role,
+      description: profile.tagline,
+      url: siteUrl,
+      image: `${siteUrl}/portrait.jpg`,
+      address: { "@type": "PostalAddress", addressCountry: "BD" },
+      sameAs: socials.filter((s) => s.href.startsWith("http")).map((s) => s.href),
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const beacon = process.env.NEXT_PUBLIC_CF_BEACON;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -91,12 +115,21 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <AmbientBackground />
-          <ScrollProgress />
-          <FloatingNav />
+          <SiteChrome />
           <main>{children}</main>
-          <Footer />
+          <SiteFooter />
         </ThemeProvider>
+
+        <JsonLd data={jsonLd} />
+        {beacon && (
+          // Cloudflare Web Analytics — privacy-friendly, cookie-less
+          // eslint-disable-next-line @next/next/no-sync-scripts
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${beacon}"}`}
+          />
+        )}
       </body>
     </html>
   );

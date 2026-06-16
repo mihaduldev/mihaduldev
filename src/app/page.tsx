@@ -1,4 +1,8 @@
 import { getGithubStats } from "@/lib/github";
+import { listExperiences } from "@/server/db/experiences";
+import { listProjects } from "@/server/db/projects";
+import { listSkillGroups } from "@/server/db/skills";
+import { listPublishedPosts } from "@/server/db/posts";
 import { SnapController } from "@/components/depth/snap-controller";
 import { SectionPager } from "@/components/depth/section-pager";
 import { Panel } from "@/components/depth/panel";
@@ -12,6 +16,8 @@ import { Testimonials } from "@/components/sections/testimonials";
 import { Writing } from "@/components/sections/writing";
 import { Principles } from "@/components/sections/principles";
 import { Contact } from "@/components/sections/contact";
+
+export const revalidate = 3600;
 
 const pager = [
   { id: "home", label: "Intro" },
@@ -27,7 +33,23 @@ const pager = [
 ];
 
 export default async function HomePage() {
-  const stats = await getGithubStats();
+  const [stats, experiences, projects, groups, posts] = await Promise.all([
+    getGithubStats(),
+    listExperiences(),
+    listProjects(),
+    listSkillGroups(),
+    listPublishedPosts(),
+  ]);
+
+  const postCards = posts.slice(0, 3).map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    date: p.publishedAt ?? "",
+    readingTime: p.readingTime,
+    tags: p.tags,
+    cover: p.cover,
+  }));
 
   return (
     <>
@@ -41,13 +63,13 @@ export default async function HomePage() {
         <About />
       </Panel>
       <Panel id="skills" index={2}>
-        <Skills />
+        <Skills groups={groups} />
       </Panel>
       <Panel id="experience" index={3}>
-        <Experience />
+        <Experience items={experiences} />
       </Panel>
       <Panel id="projects" index={4}>
-        <Projects />
+        <Projects projects={projects} />
       </Panel>
       <Panel id="stats" index={5}>
         <Stats stats={stats} />
@@ -56,7 +78,7 @@ export default async function HomePage() {
         <Testimonials />
       </Panel>
       <Panel id="blog" index={7}>
-        <Writing />
+        <Writing posts={postCards} />
       </Panel>
       <Panel id="principles" index={8}>
         <Principles />

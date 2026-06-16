@@ -1,0 +1,14 @@
+# Local development secrets for `wrangler` / the Cloudflare adapter.
+# Copy to `.dev.vars` (gitignored) and fill in. In production set these with
+# `wrangler secret put ADMIN_PASSWORD` and `wrangler secret put AUTH_SECRET`.
+
+# The single admin password (no username — just this password to log in).
+ADMIN_PASSWORD=change-me
+
+# Long random string used to sign the admin session cookie.
+# Generate: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+AUTH_SECRET=replace-with-a-long-random-string
+
+# Cloudflare Web Analytics beacon token (Dashboard → Analytics → Web Analytics).
+# Leave blank to disable the beacon.
+NEXT_PUBLIC_CF_BEACON=

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2, Loader2, Send, Github, Linkedin, Mail, Globe } from "lucide-react";
 import { profile, socials } from "@/lib/data";
+import { submitContact } from "@/app/actions/contact";
 import { SectionHeading } from "@/components/section-heading";
 import { Reveal } from "@/components/motion/reveal";
 import { GlassCard } from "@/components/depth/glass-card";
@@ -29,11 +30,18 @@ export function Contact() {
     formState: { errors, isSubmitting },
   } = useForm<Values>({ resolver: zodResolver(schema) });
 
-  async function onSubmit() {
-    await new Promise((r) => setTimeout(r, 1000));
-    setSent(true);
-    reset();
-    setTimeout(() => setSent(false), 2800);
+  const [submitError, setSubmitError] = useState("");
+
+  async function onSubmit(values: Values) {
+    setSubmitError("");
+    const res = await submitContact(values);
+    if (res.ok) {
+      setSent(true);
+      reset();
+      setTimeout(() => setSent(false), 2800);
+    } else {
+      setSubmitError(res.error ?? "Something went wrong.");
+    }
   }
 
   const field =
@@ -129,8 +137,11 @@ export function Contact() {
                     <><Send className="size-4" /> Send message</>
                   )}
                 </button>
+                {submitError && (
+                  <p className="text-center text-xs text-red-400">{submitError}</p>
+                )}
                 <p className="text-center text-xs text-tertiary">
-                  Demo form — submissions are simulated, no message is sent.
+                  Your message lands straight in my inbox — I usually reply within a day.
                 </p>
               </div>
 

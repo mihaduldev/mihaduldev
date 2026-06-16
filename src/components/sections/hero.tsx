@@ -33,14 +33,15 @@ export function Hero() {
         }}
       />
       <ParticleField text={profile.initials} />
-      {/* darken the left so the headline reads cleanly over the texture */}
+      {/* darken the left so the headline reads cleanly over the texture
+          (kept clear at the top so the floating nav stays crisp) */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/75 to-[#05070d]/20"
+        className="absolute inset-0 bg-gradient-to-r from-[#05070d] via-[#05070d]/70 to-transparent"
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-[#05070d] via-transparent to-[#05070d]/40"
+        className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#05070d] to-transparent"
       />
 
       <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 px-6 py-28 lg:grid-cols-[1.15fr_0.85fr]">

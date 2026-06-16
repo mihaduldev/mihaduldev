@@ -23,6 +23,11 @@ yarn-error.log*
 # env files
 .env*
 !.env.example
+.dev.vars
+
+# cloudflare / opennext
+/.open-next/
+/.wrangler/
 
 # typescript
 *.tsbuildinfo

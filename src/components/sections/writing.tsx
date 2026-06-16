@@ -2,13 +2,22 @@
 
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Clock } from "lucide-react";
-import { posts } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { SectionHeading } from "@/components/section-heading";
 import { RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { GlassCard } from "@/components/depth/glass-card";
 
-export function Writing() {
+export type PostCard = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readingTime: string;
+  tags: string[];
+  cover: string;
+};
+
+export function Writing({ posts }: { posts: PostCard[] }) {
   return (
     <div className="relative w-full">
       <div className="mx-auto max-w-6xl px-6">

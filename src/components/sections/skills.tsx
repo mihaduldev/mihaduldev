@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { skillGroups, type Skill } from "@/lib/data";
+import type { SkillGroup, Skill } from "@/server/db/skills";
 import { SectionHeading } from "@/components/section-heading";
 import { Marquee } from "@/components/motion/marquee";
 import { Icon } from "@/components/icon";
 import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-
-const allSkills = skillGroups.flatMap((g) => g.skills);
 
 function SkillBadge({ skill }: { skill: Skill }) {
   const [err, setErr] = useState(false);
@@ -47,9 +45,10 @@ function Pill({ name, color }: { name: string; color: string }) {
   );
 }
 
-export function Skills() {
+export function Skills({ groups }: { groups: SkillGroup[] }) {
   const [active, setActive] = useState(0);
-  const group = skillGroups[active];
+  const allSkills = groups.flatMap((g) => g.skills);
+  const group = groups[active];
 
   return (
     <div className="relative w-full">
@@ -77,7 +76,7 @@ export function Skills() {
       <div className="mx-auto mt-12 max-w-6xl px-6 sm:mt-16">
         {/* Category tabs */}
         <div className="flex flex-wrap gap-2">
-          {skillGroups.map((g, i) => (
+          {groups.map((g, i) => (
             <button
               key={g.category}
               onClick={() => setActive(i)}
