@@ -282,12 +282,22 @@
   }
 
   /* Abstract architecture backdrop (depth/architecture-bg.tsx) */
-  .arch-flow {
-    stroke-dasharray: 2 26;
-    animation: arch-flow 4.6s linear infinite;
-  }
   .arch-pulse {
     animation: pulse-glow 5.5s ease-in-out infinite;
+  }
+  /* luminous packet travelling a connection A → B (straight-line translate) */
+  .arch-packet {
+    opacity: 0;
+    animation: arch-travel var(--dur, 4s) linear infinite;
+    animation-delay: var(--delay, 0s);
+  }
+  /* sonar ping ring expanding from a hub node */
+  .arch-ping {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: arch-ping var(--dur, 4.5s) ease-out infinite;
+    animation-delay: var(--delay, 0s);
   }
 
   .animate-marquee {
@@ -334,10 +344,33 @@
   }
 }
 
-/* travelling data-flow dashes along architecture connections */
-@keyframes arch-flow {
-  to {
-    stroke-dashoffset: -28;
+/* a data packet travelling a connection (translate set per-packet via vars) */
+@keyframes arch-travel {
+  0% {
+    transform: translate(0px, 0px);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+}
+
+/* sonar ping ring expanding from a hub node */
+@keyframes arch-ping {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(7);
+    opacity: 0;
   }
 }
 
@@ -379,7 +412,8 @@
 /* While a section glide is in flight, freeze paint-heavy background animations
    (SVG dash-flow + blurred node pulses + marquees) so the rAF scroll loop owns
    the main thread — eliminates competing repaints for a smoother glide. */
-html[data-scrolling] .arch-flow,
+html[data-scrolling] .arch-packet,
+html[data-scrolling] .arch-ping,
 html[data-scrolling] .arch-pulse,
 html[data-scrolling] .animate-marquee,
 html[data-scrolling] .animate-marquee-reverse {

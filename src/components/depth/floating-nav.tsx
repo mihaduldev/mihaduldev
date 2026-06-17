@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Menu, X, Moon, Sun, ArrowUpRight, Lock, Unlock } from "lucide-react";
 import { navLinks, profile } from "@/lib/data";
 import { getAdminStatus, adminLogout } from "@/app/actions/admin";
+import { BrandMark } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
 
 function ThemeToggle() {
@@ -30,30 +31,34 @@ function ThemeToggle() {
   );
 }
 
-/** Tracks the section currently in view so the matching nav link can highlight. */
-function useActiveSection(ids: string[]) {
+/** Tracks the section currently in view. Observes EVERY panel (not just the
+ *  linked ones) so the highlight reflects the true current section — and clears
+ *  when you're on a section with no nav link (GitHub / Praise / Ethos) instead
+ *  of sticking on the previous link. */
+function useActiveSection() {
   const [active, setActive] = useState("");
   useEffect(() => {
-    const nodes = ids
-      .map((id) => document.getElementById(id))
-      .filter((n): n is HTMLElement => Boolean(n));
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-panel]"));
     if (!nodes.length) return;
+    // Center-line band (not a visibility %): the active section is whichever
+    // crosses the viewport middle. Works for sections taller than the viewport
+    // (e.g. Experience), which can never hit a 50% threshold.
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) if (e.isIntersecting) setActive(e.target.id);
       },
-      { threshold: 0.5 }
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
     );
     nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();
-  }, [ids]);
+  }, []);
   return active;
 }
 
 export function FloatingNav() {
   const [open, setOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
-  const active = useActiveSection(navLinks.map((l) => l.href.slice(1)));
+  const active = useActiveSection();
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -86,9 +91,7 @@ export function FloatingNav() {
           className="flex shrink-0 items-center gap-2.5 rounded-full pl-1 pr-1"
           aria-label={`${profile.name} — home`}
         >
-          <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand to-react-cyan text-xs font-bold text-brand-foreground glow-soft">
-            {profile.initials}
-          </span>
+          <BrandMark className="h-8 w-8" />
           <span className="hidden font-display text-sm font-semibold text-primary sm:block">
             {profile.name}
           </span>

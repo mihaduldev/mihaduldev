@@ -14,6 +14,7 @@ import {
   LogOut,
   ExternalLink,
 } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -32,9 +33,7 @@ export function AdminSidebar() {
   return (
     <aside className="sticky top-0 z-20 flex h-auto shrink-0 flex-row items-center gap-1 overflow-x-auto border-b border-border bg-wash/80 px-3 py-3 backdrop-blur md:h-[100svh] md:w-60 md:flex-col md:items-stretch md:overflow-visible md:border-b-0 md:border-r md:px-4 md:py-6">
       <Link href="/admin" className="mb-0 flex shrink-0 items-center gap-2.5 md:mb-8 md:px-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-react-cyan text-xs font-bold text-brand-foreground">
-          MI
-        </span>
+        <BrandMark className="h-9 w-9" />
         <span className="hidden font-display text-sm font-semibold text-primary md:block">
           Admin Panel
         </span>

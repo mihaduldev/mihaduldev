@@ -16,13 +16,16 @@ export function SectionPager({ items }: { items: Item[] }) {
       .filter((n): n is HTMLElement => Boolean(n));
     if (!nodes.length) return;
 
+    // Center-line band (not a visibility %): the active dot is whichever
+    // section crosses the viewport middle — robust for sections taller than the
+    // viewport (e.g. Experience), which never reach a 50%+ visibility threshold.
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (e.isIntersecting) setActive(e.target.id);
         }
       },
-      { threshold: 0.55 }
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
     );
     nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUp, Github, Linkedin, Mail, Globe } from "lucide-react";
 import { navLinks, profile, socials } from "@/lib/data";
+import { BrandMark } from "@/components/brand-mark";
 
 const iconMap = { Github, Linkedin, Mail, Globe } as const;
 
@@ -11,9 +12,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.6fr_1fr_1fr]">
           <div>
             <Link href="#home" className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand to-react-cyan text-xs font-bold text-brand-foreground">
-                {profile.initials}
-              </span>
+              <BrandMark className="h-9 w-9" />
               <span className="font-display text-base font-semibold text-primary">
                 {profile.name}
               </span>
