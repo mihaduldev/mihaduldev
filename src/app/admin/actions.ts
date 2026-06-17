@@ -25,8 +25,17 @@ import {
   type Skill,
 } from "@/server/db/skills";
 import { createPost, updatePost, deletePost, type PostInput } from "@/server/db/posts";
-import { deleteComment } from "@/server/db/comments";
-import { deleteConversation } from "@/server/db/conversations";
+import { deleteComment, listAllComments } from "@/server/db/comments";
+import { deleteConversation, listConversations } from "@/server/db/conversations";
+import { listContacts } from "@/server/db/contacts";
+import {
+  saveHeroContent,
+  saveScrollSettings as persistScrollSettings,
+  heroDefaults,
+  scrollDefaults,
+  type ScrollMode,
+  type ScrollEasing,
+} from "@/server/db/settings";
 
 async function assertAdmin() {
   const c = await cookies();
@@ -175,4 +184,51 @@ export async function removeConversation(fd: FormData) {
   await deleteConversation(num(fd, "id"));
   refresh("/admin/conversations");
   redirect("/admin/conversations");
+}
+
+/* ---------------- Admin list pagination (infinite scroll) ----------------
+   Each returns the next page; keep the page size in sync with ADMIN_PAGE_SIZE
+   in components/admin/infinite-list.tsx (20). */
+const off = (offset: number) => Math.max(0, Math.floor(offset) || 0);
+export async function moreComments(offset: number) {
+  await assertAdmin();
+  return listAllComments(20, off(offset));
+}
+export async function moreContacts(offset: number) {
+  await assertAdmin();
+  return listContacts(20, off(offset));
+}
+export async function moreLeads(offset: number) {
+  await assertAdmin();
+  return listConversations(20, off(offset));
+}
+
+/* ---------------- Site settings (hero content + scroll/motion) ---------------- */
+export async function saveHeroSettings(fd: FormData) {
+  await assertAdmin();
+  await saveHeroContent({
+    name: str(fd, "name") || heroDefaults.name,
+    roleLead: str(fd, "roleLead") || heroDefaults.roleLead,
+    roleAccent: str(fd, "roleAccent"),
+    description: str(fd, "description") || heroDefaults.description,
+    availability: str(fd, "availability") || heroDefaults.availability,
+    proof: list(fd, "proof"),
+  });
+  refresh("/admin/settings");
+  redirect("/admin/settings");
+}
+
+const MODES: ScrollMode[] = ["glide", "snap", "native"];
+const EASINGS: ScrollEasing[] = ["smootherstep", "easeInOut", "easeOut", "linear"];
+export async function saveScrollSettings(fd: FormData) {
+  await assertAdmin();
+  const mode = str(fd, "mode") as ScrollMode;
+  const easing = str(fd, "easing") as ScrollEasing;
+  await persistScrollSettings({
+    mode: MODES.includes(mode) ? mode : scrollDefaults.mode,
+    durationMs: Math.min(4000, Math.max(300, num(fd, "durationMs") || scrollDefaults.durationMs)),
+    easing: EASINGS.includes(easing) ? easing : scrollDefaults.easing,
+  });
+  refresh("/admin/settings");
+  redirect("/admin/settings");
 }

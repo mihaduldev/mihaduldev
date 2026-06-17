@@ -1,26 +1,34 @@
 "use client";
 
 import { useEffect } from "react";
+import type { ScrollSettings, ScrollEasing } from "@/server/db/settings";
 
 /**
- * Paced section deck (desktop, fine-pointer, motion-on only).
- *
- * Instead of CSS scroll-snap (which is either too aggressive = mandatory, or
- * too loose = proximity), this gives a controlled feel:
- *   - Scroll naturally WITHIN a section — if it's taller than the screen you
- *     can read all the way to its bottom.
- *   - Once you're at the section's edge, the next scroll glides to the next
- *     section over a fixed, easeable duration (deliberate, easy to follow).
- * Touch / small screens / reduced-motion fall back to plain native scrolling.
+ * Paced section deck (desktop, fine-pointer, motion-on only), driven by the
+ * admin scroll settings:
+ *   - mode "glide": at a section edge, the next scroll glides to the next one
+ *     over `durationMs` with the chosen easing curve.
+ *   - mode "snap": jump instantly between sections.
+ *   - mode "native": disable the deck — normal browser scrolling.
+ * Touch / small screens / reduced-motion always fall back to native scrolling.
  */
-const DURATION = 1650; // ms — glide length; lower = snappier, higher = slower/slow-motion
+const EASE: Record<ScrollEasing, (t: number) => number> = {
+  // zero velocity AND acceleration at both ends → buttery, no jerk
+  smootherstep: (t) => t * t * t * (t * (6 * t - 15) + 10),
+  easeInOut: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  easeOut: (t) => 1 - Math.pow(1 - t, 3),
+  linear: (t) => t,
+};
 
-export function SnapController() {
+export function SnapController({ settings }: { settings: ScrollSettings }) {
   useEffect(() => {
     const root = document.documentElement;
     const big = window.matchMedia("(min-width: 768px)");
     const fine = window.matchMedia("(pointer: fine)");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const { mode, durationMs } = settings;
+    const ease = EASE[settings.easing] ?? EASE.smootherstep;
 
     let enabled = false;
     let animating = false;
@@ -36,7 +44,6 @@ export function SnapController() {
         const r = list[i].getBoundingClientRect();
         if (r.top <= mid && r.bottom >= mid) return i;
       }
-      // fallback: nearest top to viewport top
       let idx = 0;
       let best = Infinity;
       list.forEach((el, i) => {
@@ -50,25 +57,24 @@ export function SnapController() {
     }
 
     function animateTo(y: number) {
+      // Instant snap — jump immediately, no rAF glide.
+      if (mode === "snap") {
+        window.scrollTo({ top: y, behavior: "auto" });
+        lockUntil = performance.now() + 360;
+        return;
+      }
       animating = true;
-      // Disable CSS smooth scroll during our rAF glide, otherwise the browser
-      // also smooth-scrolls to each frame's target → doubled/juddery motion.
+      // Disable CSS smooth scroll + pause paint-heavy bg animations during the
+      // rAF glide so it owns the main thread (no doubled/juddery motion).
       const prevBehavior = root.style.scrollBehavior;
       root.style.scrollBehavior = "auto";
-      // Pause paint-heavy background animations (SVG dash flow, blurred node
-      // pulses, marquees) for the duration of the glide so the scroll loop
-      // owns the main thread → no competing repaints, smoother motion.
       root.setAttribute("data-scrolling", "");
       const startY = window.scrollY;
       const dist = y - startY;
       let start: number | null = null;
-      // Smootherstep (6t^5-15t^4+10t^3): zero velocity AND acceleration at both
-      // ends → the gentlest possible departure/arrival (no jerk) for a calm,
-      // fluid journey, while keeping a responsive mid-glide.
-      const ease = (t: number) => t * t * t * (t * (6 * t - 15) + 10);
       const step = (ts: number) => {
         if (start === null) start = ts;
-        const p = Math.min((ts - start) / DURATION, 1);
+        const p = durationMs > 0 ? Math.min((ts - start) / durationMs, 1) : 1;
         window.scrollTo(0, startY + dist * ease(p));
         if (p < 1) raf = requestAnimationFrame(step);
         else {
@@ -91,8 +97,8 @@ export function SnapController() {
 
     function onWheel(e: WheelEvent) {
       if (!enabled) return;
-      // Overlays that scroll internally (e.g. the chat widget) opt out of the
-      // deck hijack so the wheel scrolls THEM natively, not the page.
+      // Overlays that scroll internally (e.g. the chat widget) opt out so the
+      // wheel scrolls THEM natively, not the page.
       const t = e.target as Element | null;
       if (t && t.closest("[data-scroll-isolate]")) return;
       if (animating || performance.now() < lockUntil) {
@@ -104,9 +110,6 @@ export function SnapController() {
       const el = list[currentIndex(list)];
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight;
-      // Only let the browser scroll natively when a section is GENUINELY taller
-      // than the viewport (lots more content below/above). Otherwise page with
-      // the smooth glide — so near-viewport sections don't fast-scroll natively.
       const SLACK = 140;
       if (e.deltaY > 0) {
         if (r.bottom > vh + SLACK) return; // substantial content below → read it
@@ -133,7 +136,7 @@ export function SnapController() {
     }
 
     function apply() {
-      enabled = big.matches && fine.matches && !reduce.matches;
+      enabled = mode !== "native" && big.matches && fine.matches && !reduce.matches;
       if (enabled) root.setAttribute("data-snap", "");
       else root.removeAttribute("data-snap");
     }
@@ -154,7 +157,7 @@ export function SnapController() {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
     };
-  }, []);
+  }, [settings]);
 
   return null;
 }

@@ -144,12 +144,13 @@ function toConversation(r: Record<string, unknown>): Conversation {
 
 /* ---------------- admin ---------------- */
 
-export async function listConversations(): Promise<Conversation[]> {
+export async function listConversations(limit = 20, offset = 0): Promise<Conversation[]> {
   return query(async (db) => {
     const { results } = await db
       .prepare(
-        "SELECT * FROM chat_conversations WHERE message_count > 0 ORDER BY updated_at DESC, id DESC LIMIT 300"
+        "SELECT * FROM chat_conversations WHERE message_count > 0 ORDER BY updated_at DESC, id DESC LIMIT ? OFFSET ?"
       )
+      .bind(limit, offset)
       .all();
     return results.map(toConversation);
   }, []);

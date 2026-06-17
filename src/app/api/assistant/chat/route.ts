@@ -107,5 +107,7 @@ export async function POST(req: Request) {
     { role: "assistant", content: reply },
   ]);
 
-  return NextResponse.json({ reply });
+  // conversationId lets the client detect a server-side reset (e.g. the admin
+  // deleted this lead) and start a fresh thread.
+  return NextResponse.json({ reply, conversationId: convo.id });
 }

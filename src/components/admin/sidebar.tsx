@@ -12,6 +12,7 @@ import {
   Bot,
   Mail,
   BarChart3,
+  Settings,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const items = [
   { href: "/admin/conversations", label: "Leads", icon: Bot },
   { href: "/admin/contacts", label: "Contacts", icon: Mail },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export function AdminSidebar() {

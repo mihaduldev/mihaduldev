@@ -9,6 +9,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 const SESSION_KEY = "mihad_chat_session";
 const MSGS_KEY = "mihad_chat_msgs";
+const CID_KEY = "mihad_chat_cid";
 
 const GREETING: Msg = {
   role: "assistant",
@@ -32,6 +33,7 @@ export function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const sessionRef = useRef<string>("");
+  const cidRef = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
@@ -46,6 +48,8 @@ export function ChatWidget() {
         localStorage.setItem(SESSION_KEY, s);
       }
       sessionRef.current = s;
+      const c = localStorage.getItem(CID_KEY);
+      if (c) cidRef.current = Number(c) || null;
       const saved = localStorage.getItem(MSGS_KEY);
       if (saved) {
         const arr = JSON.parse(saved) as Msg[];
@@ -100,7 +104,11 @@ export function ChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId: sessionRef.current, message: text }),
       });
-      const data = (await res.json().catch(() => ({}))) as { reply?: string; error?: string };
+      const data = (await res.json().catch(() => ({}))) as {
+        reply?: string;
+        error?: string;
+        conversationId?: number;
+      };
       if (!res.ok || !data.reply) {
         setMessages((m) => [
           ...m,
@@ -110,6 +118,19 @@ export function ChatWidget() {
           },
         ]);
         return;
+      }
+      // If the server conversation changed (e.g. the admin deleted this lead),
+      // discard the stale transcript and begin a fresh thread with this turn.
+      if (typeof data.conversationId === "number") {
+        if (cidRef.current != null && data.conversationId !== cidRef.current) {
+          setMessages([GREETING, { role: "user", content: text }]);
+        }
+        cidRef.current = data.conversationId;
+        try {
+          localStorage.setItem(CID_KEY, String(data.conversationId));
+        } catch {
+          /* ignore */
+        }
       }
       // Typewriter reveal — finishes in ~2s regardless of length, so it reads
       // like a streaming chatbot while the request itself stays non-streaming.

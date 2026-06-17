@@ -1,8 +1,9 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Bot, ArrowLeft, Mail, Clock, MessageSquare } from "lucide-react";
+import { Bot, ArrowLeft } from "lucide-react";
 import {
   listConversations,
+  countConversations,
   getConversation,
   listConversationMessages,
   type Conversation,
@@ -11,6 +12,8 @@ import { getOrGenerateOverview } from "@/server/ai/overview";
 import { removeConversation } from "@/app/admin/actions";
 import { PageHeader, AdminCard } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { LeadsList } from "@/components/admin/leads-list";
+import { ADMIN_PAGE_SIZE } from "@/components/admin/infinite-list";
 
 export const dynamic = "force-dynamic";
 
@@ -183,16 +186,19 @@ export default async function ConversationsAdmin({
   }
 
   /* ---------- list ---------- */
-  const convos = await listConversations();
+  const [convos, total] = await Promise.all([
+    listConversations(ADMIN_PAGE_SIZE, 0),
+    countConversations(),
+  ]);
 
   return (
     <div>
       <PageHeader
         title="Leads"
-        subtitle={`${convos.length} assistant conversation${convos.length === 1 ? "" : "s"}. Open one to see the AI-gathered project brief.`}
+        subtitle={`${total} assistant conversation${total === 1 ? "" : "s"}. Open one to see the AI-gathered project brief.`}
       />
 
-      {convos.length === 0 ? (
+      {total === 0 ? (
         <AdminCard className="text-center">
           <Bot className="mx-auto size-6 text-tertiary" />
           <p className="mt-3 text-sm text-tertiary">
@@ -200,40 +206,7 @@ export default async function ConversationsAdmin({
           </p>
         </AdminCard>
       ) : (
-        <div className="space-y-3">
-          {convos.map((c) => (
-            <Link key={c.id} href={`/admin/conversations?id=${c.id}`} className="block">
-              <AdminCard className="p-5 transition-colors hover:border-accent/40">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-primary">
-                        {c.overview?.visitorName ?? c.visitorName ?? "Anonymous visitor"}
-                      </p>
-                      {c.overview && (
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${clarityStyle[c.overview.clarity] ?? clarityStyle.low}`}>
-                          {c.overview.clarity}
-                        </span>
-                      )}
-                      {(c.overview?.visitorEmail ?? c.visitorEmail) && (
-                        <span className="inline-flex items-center gap-1 text-xs text-accent">
-                          <Mail className="size-3" /> {c.overview?.visitorEmail ?? c.visitorEmail}
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1.5 line-clamp-2 text-sm text-tertiary">
-                      {c.overview?.summary ?? "Open to generate the project brief from this conversation."}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end gap-1.5 text-xs text-tertiary">
-                    <span className="inline-flex items-center gap-1"><MessageSquare className="size-3.5" /> {c.messageCount}</span>
-                    <span className="inline-flex items-center gap-1"><Clock className="size-3.5" /> {fmt(c.updatedAt)}</span>
-                  </div>
-                </div>
-              </AdminCard>
-            </Link>
-          ))}
-        </div>
+        <LeadsList initial={convos} total={total} />
       )}
     </div>
   );

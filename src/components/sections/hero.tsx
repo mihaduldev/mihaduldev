@@ -7,13 +7,11 @@ import { profile, socials } from "@/lib/data";
 import { ArchitectureBackground } from "@/components/depth/architecture-bg";
 import { Portrait } from "@/components/depth/portrait";
 import { duration, easing } from "@/lib/motion";
+import type { HeroContent } from "@/server/db/settings";
 
 const iconMap = { Github, Linkedin, Mail, Globe } as const;
 
-// 3-second value proof — what he's known for
-const proof = ["Clean Architecture", "Cloud-ready Delivery", "Practical AI"];
-
-export function Hero() {
+export function Hero({ content }: { content: HeroContent }) {
   const reduce = useReducedMotion();
   const fade = (d: number) => ({
     initial: reduce ? { opacity: 0 } : { opacity: 0, y: 20 },
@@ -69,7 +67,7 @@ export function Hero() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" />
               </span>
-              Available for full-stack, cloud &amp; AI integration projects
+              {content.availability}
             </span>
           </motion.div>
 
@@ -78,7 +76,7 @@ export function Hero() {
             {...fade(0.12)}
             className="mt-6 font-display text-[clamp(2.75rem,7vw,4.5rem)] font-bold leading-[1.02] tracking-tight text-primary"
           >
-            {profile.name}
+            {content.name}
           </motion.h1>
 
           {/* WHAT */}
@@ -86,8 +84,8 @@ export function Hero() {
             {...fade(0.2)}
             className="mt-4 text-lg font-semibold leading-snug text-primary sm:text-xl"
           >
-            Full-Stack .NET Engineer
-            <span className="text-accent"> · Cloud · System Design · AI Integrations</span>
+            {content.roleLead}
+            <span className="text-accent">{content.roleAccent}</span>
           </motion.p>
 
           {/* WHY (value) — constrained width for readability */}
@@ -95,15 +93,12 @@ export function Hero() {
             {...fade(0.28)}
             className="mt-5 max-w-xl text-base leading-relaxed text-secondary sm:text-[1.0625rem]"
           >
-            I build full-stack applications across the .NET ecosystem — scalable
-            backends, clean APIs, and modern web frontends — with cloud-ready
-            delivery and practical AI integrations that help real businesses
-            operate faster and more reliably.
+            {content.description}
           </motion.p>
 
           {/* proof */}
           <motion.ul {...fade(0.34)} className="mt-6 flex flex-wrap gap-2.5">
-            {proof.map((p) => (
+            {content.proof.map((p) => (
               <li
                 key={p}
                 className="glass rounded-full px-3.5 py-1.5 text-xs font-medium text-secondary"

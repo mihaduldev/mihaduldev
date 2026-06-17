@@ -27,10 +27,11 @@ function toContact(r: Record<string, unknown>): Contact {
   };
 }
 
-export async function listContacts(): Promise<Contact[]> {
+export async function listContacts(limit = 20, offset = 0): Promise<Contact[]> {
   return query(async (db) => {
     const { results } = await db
-      .prepare("SELECT * FROM contacts ORDER BY created_at DESC, id DESC LIMIT 200")
+      .prepare("SELECT * FROM contacts ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?")
+      .bind(limit, offset)
       .all();
     return results.map(toContact);
   }, []);

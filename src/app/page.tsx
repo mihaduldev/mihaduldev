@@ -3,6 +3,7 @@ import { listExperiences } from "@/server/db/experiences";
 import { listProjects } from "@/server/db/projects";
 import { listSkillGroups } from "@/server/db/skills";
 import { listPublishedPosts } from "@/server/db/posts";
+import { getHeroContent, getScrollSettings } from "@/server/db/settings";
 import { SnapController } from "@/components/depth/snap-controller";
 import { SectionPager } from "@/components/depth/section-pager";
 import { Panel } from "@/components/depth/panel";
@@ -33,12 +34,14 @@ const pager = [
 ];
 
 export default async function HomePage() {
-  const [stats, experiences, projects, groups, posts] = await Promise.all([
+  const [stats, experiences, projects, groups, posts, hero, scroll] = await Promise.all([
     getGithubStats(),
     listExperiences(),
     listProjects(),
     listSkillGroups(),
     listPublishedPosts(),
+    getHeroContent(),
+    getScrollSettings(),
   ]);
 
   const postCards = posts.slice(0, 3).map((p) => ({
@@ -53,11 +56,11 @@ export default async function HomePage() {
 
   return (
     <>
-      <SnapController />
+      <SnapController settings={scroll} />
       <SectionPager items={pager} />
 
       <Panel id="home" index={0}>
-        <Hero />
+        <Hero content={hero} />
       </Panel>
       <Panel id="about" index={1}>
         <About />

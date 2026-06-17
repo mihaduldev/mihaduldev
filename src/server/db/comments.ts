@@ -71,10 +71,11 @@ export async function countComments(postSlug: string): Promise<number> {
   }, 0);
 }
 
-export async function listAllComments(): Promise<AdminComment[]> {
+export async function listAllComments(limit = 20, offset = 0): Promise<AdminComment[]> {
   return query(async (db) => {
     const { results } = await db
-      .prepare("SELECT * FROM comments ORDER BY created_at DESC, id DESC LIMIT 500")
+      .prepare("SELECT * FROM comments ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?")
+      .bind(limit, offset)
       .all();
     return results.map((r) => ({
       ...toPublic(r),
