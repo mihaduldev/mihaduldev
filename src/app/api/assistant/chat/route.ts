@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { assistantSystemPrompt } from "@/server/ai/context";
-import { chatComplete, isConfigured, type ChatMessage } from "@/server/ai/openrouter";
+import { streamChat, isConfigured, type ChatMessage } from "@/server/ai/openrouter";
 import {
   getOrCreateConversation,
   listConversationMessages,
@@ -91,21 +91,55 @@ export async function POST(req: Request) {
     { role: "user", content: message },
   ];
 
-  let reply = "";
+  let tokens: ReadableStream<string>;
   try {
-    reply = await chatComplete(messages, { temperature: 0.5, maxTokens: 700 });
+    tokens = await streamChat(messages, { temperature: 0.5, maxTokens: 700 });
   } catch {
     return NextResponse.json(
       { error: "The assistant couldn't respond just now. Please try again, or email Mihadul." },
       { status: 502 }
     );
   }
-  if (!reply) reply = "Sorry, I didn't quite catch that — could you rephrase?";
 
-  await addMessages(convo.id, [
-    { role: "user", content: message },
-    { role: "assistant", content: reply },
-  ]);
+  // Stream token deltas straight to the client while accumulating the full reply,
+  // then persist the user+assistant pair once the stream completes.
+  const encoder = new TextEncoder();
+  const conversationId = convo.id;
+  const out = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const reader = tokens.getReader();
+      let full = "";
+      try {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          full += value;
+          controller.enqueue(encoder.encode(value));
+        }
+      } catch {
+        /* upstream error mid-stream — persist whatever arrived */
+      } finally {
+        const reply = full.trim();
+        if (reply) {
+          try {
+            await addMessages(conversationId, [
+              { role: "user", content: message },
+              { role: "assistant", content: reply },
+            ]);
+          } catch {
+            /* ignore persistence failure */
+          }
+        }
+        controller.close();
+      }
+    },
+  });
 
-  return NextResponse.json({ conversationId: convo.id, reply });
+  return new Response(out, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-store, no-transform",
+      "X-Accel-Buffering": "no",
+    },
+  });
 }

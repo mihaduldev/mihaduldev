@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Bot, X, Send, Loader2, Sparkles } from "lucide-react";
+import { ChatMarkdown } from "@/components/assistant/chat-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -99,16 +100,43 @@ export function ChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId: sessionRef.current, message: text }),
       });
-      const data = (await res.json()) as { reply?: string; error?: string };
-      if (res.ok && data.reply) {
-        setMessages((m) => [...m, { role: "assistant", content: data.reply as string }]);
-      } else {
+      // Errors come back as JSON; a successful reply is a streamed text body.
+      if (!res.ok || !res.body) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
         setMessages((m) => [
           ...m,
           {
             role: "assistant",
             content: data.error ?? "Something went wrong. Please try again, or email mehad65@gmail.com.",
           },
+        ]);
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = "";
+      let added = false;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        if (!chunk) continue;
+        acc += chunk;
+        if (!added) {
+          added = true;
+          setMessages((m) => [...m, { role: "assistant", content: acc }]);
+        } else {
+          setMessages((m) => {
+            const c = [...m];
+            c[c.length - 1] = { role: "assistant", content: acc };
+            return c;
+          });
+        }
+      }
+      if (!added) {
+        setMessages((m) => [
+          ...m,
+          { role: "assistant", content: "Sorry, I didn't catch that — could you rephrase?" },
         ]);
       }
     } catch {
@@ -207,20 +235,22 @@ export function ChatWidget() {
 
             {/* messages */}
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-              {messages.map((m, i) => (
-                <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                  <div
-                    className={
-                      m.role === "user"
-                        ? "max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-sm text-brand-foreground"
-                        : "max-w-[88%] whitespace-pre-wrap break-words rounded-2xl rounded-bl-md glass px-3.5 py-2.5 text-sm leading-relaxed text-secondary"
-                    }
-                  >
-                    {m.content}
+              {messages.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className="flex justify-end">
+                    <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-sm text-brand-foreground">
+                      {m.content}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {loading && (
+                ) : (
+                  <div key={i} className="flex justify-start">
+                    <div className="max-w-[88%] break-words rounded-2xl rounded-bl-md glass px-3.5 py-2.5 text-sm leading-relaxed text-secondary [&_a]:break-all">
+                      <ChatMarkdown>{m.content}</ChatMarkdown>
+                    </div>
+                  </div>
+                )
+              )}
+              {loading && messages[messages.length - 1]?.role !== "assistant" && (
                 <div className="flex justify-start">
                   <div className="flex items-center gap-2 rounded-2xl rounded-bl-md glass px-3.5 py-2.5 text-sm text-tertiary">
                     <Loader2 className="size-3.5 animate-spin" /> thinking…

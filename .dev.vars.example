@@ -19,4 +19,4 @@ NEXT_PUBLIC_CF_BEACON=
 OPENROUTER_API_KEY=sk-or-v1-...
 # Any chat model; a capable free one is recommended (falls back automatically
 # if rate-limited). See https://openrouter.ai/models?max_price=0
-OPENROUTER_MODEL=openai/gpt-oss-120b:free
+OPENROUTER_MODEL=openai/gpt-oss-20b:free
