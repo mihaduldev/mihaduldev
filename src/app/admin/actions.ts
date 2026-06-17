@@ -26,6 +26,7 @@ import {
 } from "@/server/db/skills";
 import { createPost, updatePost, deletePost, type PostInput } from "@/server/db/posts";
 import { deleteComment } from "@/server/db/comments";
+import { deleteConversation } from "@/server/db/conversations";
 
 async function assertAdmin() {
   const c = await cookies();
@@ -166,4 +167,12 @@ export async function removeComment(fd: FormData) {
   const slug = str(fd, "slug");
   refresh("/admin/comments", slug ? `/blog/${slug}` : "/blog");
   redirect("/admin/comments");
+}
+
+/* ---------------- Assistant conversations (leads) ---------------- */
+export async function removeConversation(fd: FormData) {
+  await assertAdmin();
+  await deleteConversation(num(fd, "id"));
+  refresh("/admin/conversations");
+  redirect("/admin/conversations");
 }

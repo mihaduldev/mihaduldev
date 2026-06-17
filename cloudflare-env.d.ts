@@ -17,6 +17,8 @@ declare global {
     ADMIN_PASSWORD: string;
     AUTH_SECRET: string;
     NEXT_PUBLIC_CF_BEACON?: string;
+    OPENROUTER_API_KEY?: string;
+    OPENROUTER_MODEL?: string;
   }
 }
 

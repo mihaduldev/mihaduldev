@@ -12,3 +12,11 @@ AUTH_SECRET=replace-with-a-long-random-string
 # Cloudflare Web Analytics beacon token (Dashboard → Analytics → Web Analytics).
 # Leave blank to disable the beacon.
 NEXT_PUBLIC_CF_BEACON=
+
+# OpenRouter API key for the site AI assistant (https://openrouter.ai/keys).
+# Server-side only — never exposed to the browser. In production:
+# `wrangler secret put OPENROUTER_API_KEY`.
+OPENROUTER_API_KEY=sk-or-v1-...
+# Any chat model; a capable free one is recommended (falls back automatically
+# if rate-limited). See https://openrouter.ai/models?max_price=0
+OPENROUTER_MODEL=openai/gpt-oss-120b:free

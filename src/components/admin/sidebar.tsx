@@ -9,6 +9,7 @@ import {
   Boxes,
   FileText,
   MessageSquare,
+  Bot,
   Mail,
   BarChart3,
   LogOut,
@@ -24,6 +25,7 @@ const items = [
   { href: "/admin/skills", label: "Skills", icon: Boxes },
   { href: "/admin/blog", label: "Blog", icon: FileText },
   { href: "/admin/comments", label: "Comments", icon: MessageSquare },
+  { href: "/admin/conversations", label: "Leads", icon: Bot },
   { href: "/admin/contacts", label: "Contacts", icon: Mail },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ];
