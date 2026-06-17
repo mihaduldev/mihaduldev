@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { listExperiences } from "@/server/db/experiences";
 import { saveExperience, removeExperience } from "@/app/admin/actions";
-import { PageHeader, AdminCard, Field, field, SubmitButton } from "@/components/admin/ui";
+import { PageHeader, AdminCard, Field, field } from "@/components/admin/ui";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { TagInput } from "@/components/admin/tag-input";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +28,7 @@ export default async function ExperienceAdmin({
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
         <AdminCard className="self-start">
           <h2 className="font-semibold text-primary">{editing ? "Edit entry" : "Add entry"}</h2>
-          <form action={saveExperience} className="mt-4 space-y-4">
+          <form key={editing?.id ?? "new"} action={saveExperience} className="mt-4 space-y-4">
             {editing && <input type="hidden" name="id" defaultValue={editing.id} />}
             <Field label="Period">
               <input name="period" required defaultValue={editing?.period} className={field} placeholder="Now / Ongoing / Continuous" />
@@ -49,7 +51,7 @@ export default async function ExperienceAdmin({
               </Field>
             </div>
             <Field label="Tags" hint="comma separated">
-              <input name="tags" defaultValue={editing?.tags.join(", ")} className={field} placeholder="ASP.NET Core, Clean Architecture" />
+              <TagInput name="tags" defaultValue={editing?.tags ?? []} placeholder="ASP.NET Core, Clean Architecture" />
             </Field>
             <div className="flex items-center gap-3 pt-1">
               <SubmitButton>{editing ? "Update entry" : "Add entry"}</SubmitButton>

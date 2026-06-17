@@ -13,7 +13,7 @@ import { useEffect } from "react";
  *     section over a fixed, easeable duration (deliberate, easy to follow).
  * Touch / small screens / reduced-motion fall back to plain native scrolling.
  */
-const DURATION = 700; // ms — bump down for snappier, up for slower
+const DURATION = 1000; // ms — bump down for snappier, up for slower/calmer
 
 export function SnapController() {
   useEffect(() => {

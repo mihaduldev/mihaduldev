@@ -58,13 +58,3 @@ export function Field({
   );
 }
 
-export function SubmitButton({ children }: { children: ReactNode }) {
-  return (
-    <button
-      type="submit"
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-semibold text-brand-foreground transition-all hover:shadow-[var(--glow-md)]"
-    >
-      {children}
-    </button>
-  );
-}

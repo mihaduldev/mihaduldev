@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { listAllPosts } from "@/server/db/posts";
 import { savePost, removePost } from "@/app/admin/actions";
-import { PageHeader, AdminCard, Field, field, SubmitButton } from "@/components/admin/ui";
+import { PageHeader, AdminCard, Field, field } from "@/components/admin/ui";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { TagInput } from "@/components/admin/tag-input";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { MarkdownEditor } from "@/components/admin/markdown-editor";
 
@@ -31,7 +33,7 @@ export default async function BlogAdmin({
       <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
         <AdminCard className="self-start">
           <h2 className="font-semibold text-primary">{editing ? "Edit post" : "New post"}</h2>
-          <form action={savePost} className="mt-4 space-y-4">
+          <form key={editing?.id ?? "new"} action={savePost} className="mt-4 space-y-4">
             {editing && <input type="hidden" name="id" defaultValue={editing.id} />}
             <Field label="Title">
               <input name="title" required defaultValue={editing?.title} className={field} />
@@ -48,7 +50,7 @@ export default async function BlogAdmin({
               <textarea name="excerpt" rows={2} defaultValue={editing?.excerpt} className={field} />
             </Field>
             <Field label="Tags" hint="comma separated">
-              <input name="tags" defaultValue={editing?.tags.join(", ")} className={field} placeholder=".NET, Architecture" />
+              <TagInput name="tags" defaultValue={editing?.tags ?? []} placeholder=".NET, Architecture" />
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Cover gradient">

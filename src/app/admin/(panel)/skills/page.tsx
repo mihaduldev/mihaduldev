@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { listSkillGroups } from "@/server/db/skills";
 import { saveSkillGroup, removeSkillGroup } from "@/app/admin/actions";
-import { PageHeader, AdminCard, Field, field, SubmitButton } from "@/components/admin/ui";
+import { PageHeader, AdminCard, Field, field } from "@/components/admin/ui";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { SkillsEditor } from "@/components/admin/skills-editor";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 
 export const dynamic = "force-dynamic";
-
-const SKILLS_HINT =
-  'JSON array. Each: {"name","color":"#hex","desc","core":true,"logo":"devicon/slug-original"}. "core" and "logo" optional.';
 
 export default async function SkillsAdmin({
   searchParams,
@@ -26,7 +25,7 @@ export default async function SkillsAdmin({
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <AdminCard className="self-start">
           <h2 className="font-semibold text-primary">{editing ? "Edit group" : "Add group"}</h2>
-          <form action={saveSkillGroup} className="mt-4 space-y-4">
+          <form key={editing?.id ?? "new"} action={saveSkillGroup} className="mt-4 space-y-4">
             {editing && <input type="hidden" name="id" defaultValue={editing.id} />}
             <Field label="Category">
               <input name="category" required defaultValue={editing?.category} className={field} placeholder="Backend & Architecture" />
@@ -42,13 +41,8 @@ export default async function SkillsAdmin({
             <Field label="Description">
               <textarea name="description" rows={2} defaultValue={editing?.description} className={field} />
             </Field>
-            <Field label="Skills" hint={SKILLS_HINT}>
-              <textarea
-                name="skills"
-                rows={10}
-                defaultValue={JSON.stringify(editing?.skills ?? [], null, 2)}
-                className={`${field} font-mono text-xs`}
-              />
+            <Field label="Skills" hint="Add each tech with its colour, a short purpose, and optionally mark it Core / add a logo.">
+              <SkillsEditor defaultValue={editing?.skills ?? []} />
             </Field>
             <div className="flex items-center gap-3 pt-1">
               <SubmitButton>{editing ? "Update group" : "Add group"}</SubmitButton>

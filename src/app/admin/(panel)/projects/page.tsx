@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { listProjects } from "@/server/db/projects";
 import { saveProject, removeProject } from "@/app/admin/actions";
-import { PageHeader, AdminCard, Field, field, SubmitButton } from "@/components/admin/ui";
+import { PageHeader, AdminCard, Field, field } from "@/components/admin/ui";
+import { SubmitButton } from "@/components/admin/submit-button";
+import { TagInput } from "@/components/admin/tag-input";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +25,7 @@ export default async function ProjectsAdmin({
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
         <AdminCard className="self-start">
           <h2 className="font-semibold text-primary">{editing ? "Edit project" : "Add project"}</h2>
-          <form action={saveProject} className="mt-4 space-y-4">
+          <form key={editing?.id ?? "new"} action={saveProject} className="mt-4 space-y-4">
             {editing && <input type="hidden" name="id" defaultValue={editing.id} />}
             <Field label="Title">
               <input name="title" required defaultValue={editing?.title} className={field} />
@@ -32,7 +34,7 @@ export default async function ProjectsAdmin({
               <textarea name="description" required rows={3} defaultValue={editing?.description} className={field} />
             </Field>
             <Field label="Focus tags" hint="comma separated">
-              <input name="focus" defaultValue={editing?.focus.join(", ")} className={field} placeholder="C#, Architecture, System Design" />
+              <TagInput name="focus" defaultValue={editing?.focus ?? []} placeholder="C#, Architecture, System Design" />
             </Field>
             <Field label="Repository URL">
               <input name="repo" type="url" defaultValue={editing?.repo} className={field} placeholder="https://github.com/…" />
