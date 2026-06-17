@@ -22,7 +22,7 @@ export const revalidate = 3600;
 const pager = [
   { id: "home", label: "Intro" },
   { id: "about", label: "About" },
-  { id: "skills", label: "Stack" },
+  { id: "skills", label: "Skills" },
   { id: "experience", label: "Journey" },
   { id: "projects", label: "Work" },
   { id: "stats", label: "GitHub" },

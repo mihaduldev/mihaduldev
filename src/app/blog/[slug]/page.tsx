@@ -3,10 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock, Calendar, ArrowLeft } from "lucide-react";
 import { listPublishedPosts, getPublishedPostBySlug } from "@/server/db/posts";
+import { listComments } from "@/server/db/comments";
+import { getReactionCounts } from "@/server/db/reactions";
 import { profile } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/json-ld";
 import { PostBody } from "@/components/markdown";
+import { PostComments } from "@/components/blog/post-comments";
 
 export const revalidate = 3600;
 
@@ -44,6 +47,11 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const post = await getPublishedPostBySlug(slug);
   if (!post) notFound();
+
+  const [comments, reactions] = await Promise.all([
+    listComments(slug),
+    getReactionCounts(slug),
+  ]);
 
   const site = "https://mihad.site";
 
@@ -110,10 +118,12 @@ export default async function BlogPostPage({
         <PostBody markdown={post.bodyMd} />
       </div>
 
+      <PostComments slug={slug} initialComments={comments} initialCounts={reactions} />
+
       <div className="mt-16 rounded-3xl glass glow-ring p-8 text-center">
         <p className="font-display text-xl font-semibold text-primary">Enjoyed this?</p>
         <p className="mt-2 text-sm text-tertiary">
-          Let&apos;s talk about backend, cloud, or AI engineering.
+          Let&apos;s discuss full-stack, cloud, or AI engineering.
         </p>
         <Link
           href="/#contact"

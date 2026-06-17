@@ -7,7 +7,8 @@ import { profile } from "@/lib/data";
 /**
  * Hero portrait in a glowing glass frame. Drops in automatically when a photo
  * exists at /portrait.jpg (square or 4:5, ~800px+). Until then it shows a clean
- * monogram fallback, so the layout is never broken.
+ * monogram fallback, so the layout is never broken. The availability status
+ * lives once, on the hero's left badge — intentionally not repeated here.
  */
 // Tries these in order, so any of these filenames in /public just works.
 // The ?v= busts the browser cache when the photo is reprocessed.
@@ -27,24 +28,27 @@ export function Portrait() {
     <motion.div
       initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
+      whileHover={reduce ? undefined : { y: -6 }}
       transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
-      className="relative mx-auto w-full max-w-[14rem] lg:max-w-[17rem]"
+      className="group relative mx-auto w-full max-w-[13rem] sm:max-w-[15rem] lg:max-w-[17rem]"
     >
-      {/* glow aura */}
+      {/* soft glow aura — kept light, not a heavy shadow */}
       <div
         aria-hidden
-        className="absolute -inset-6 -z-10 rounded-[2rem] opacity-60 blur-3xl"
-        style={{ background: "radial-gradient(circle at 50% 40%, var(--glow), transparent 65%)" }}
+        className="absolute -inset-4 -z-10 rounded-[1.75rem] opacity-45 blur-3xl transition-opacity duration-500 group-hover:opacity-60"
+        style={{ background: "radial-gradient(circle at 50% 35%, var(--glow), transparent 65%)" }}
       />
 
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl glass glow-ring">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-border glass glow-ring">
         {hasPhoto ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={SOURCES[srcIndex]}
-            alt={`${profile.fullName} — ${profile.role}`}
+            alt={`Portrait of ${profile.fullName}, ${profile.role}`}
             onError={() => setSrcIndex((i) => i + 1)}
             className="h-full w-full object-cover object-center"
+            loading="eager"
+            decoding="async"
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-wash-2 to-card">
@@ -63,19 +67,6 @@ export function Portrait() {
           className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/5"
         />
       </div>
-
-      {/* floating availability chip */}
-      <motion.div
-        animate={reduce ? undefined : { y: [0, -8, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-full glass px-3.5 py-2 text-xs font-medium text-primary glow-soft"
-      >
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
-        </span>
-        Open to work
-      </motion.div>
     </motion.div>
   );
 }

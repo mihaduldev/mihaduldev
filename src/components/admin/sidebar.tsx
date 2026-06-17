@@ -8,6 +8,7 @@ import {
   FolderGit2,
   Boxes,
   FileText,
+  MessageSquare,
   Mail,
   BarChart3,
   LogOut,
@@ -21,6 +22,7 @@ const items = [
   { href: "/admin/projects", label: "Projects", icon: FolderGit2 },
   { href: "/admin/skills", label: "Skills", icon: Boxes },
   { href: "/admin/blog", label: "Blog", icon: FileText },
+  { href: "/admin/comments", label: "Comments", icon: MessageSquare },
   { href: "/admin/contacts", label: "Contacts", icon: Mail },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ];

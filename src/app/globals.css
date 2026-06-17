@@ -182,13 +182,12 @@
     border-radius: 9999px;
   }
 
+  /* Use `outline` (not box-shadow) so the focus ring can't be overridden by
+     decorative shadow-[...] utilities on CTAs/Connect, and so it follows each
+     element's own border-radius (pills, circles) instead of a fixed rectangle. */
   :focus-visible {
-    outline: 2px solid transparent;
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
-    box-shadow:
-      0 0 0 2px var(--wash),
-      0 0 0 4px var(--ring);
-    border-radius: 8px;
   }
 }
 
@@ -282,6 +281,15 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
   }
 
+  /* Abstract architecture backdrop (depth/architecture-bg.tsx) */
+  .arch-flow {
+    stroke-dasharray: 2 26;
+    animation: arch-flow 4.6s linear infinite;
+  }
+  .arch-pulse {
+    animation: pulse-glow 5.5s ease-in-out infinite;
+  }
+
   .animate-marquee {
     animation: marquee 42s linear infinite;
   }
@@ -326,6 +334,13 @@
   }
 }
 
+/* travelling data-flow dashes along architecture connections */
+@keyframes arch-flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
 @keyframes float-y {
   0%,
   100% {
@@ -359,6 +374,16 @@
     flex-direction: column;
     scroll-snap-align: start;
   }
+}
+
+/* While a section glide is in flight, freeze paint-heavy background animations
+   (SVG dash-flow + blurred node pulses + marquees) so the rAF scroll loop owns
+   the main thread — eliminates competing repaints for a smoother glide. */
+html[data-scrolling] .arch-flow,
+html[data-scrolling] .arch-pulse,
+html[data-scrolling] .animate-marquee,
+html[data-scrolling] .animate-marquee-reverse {
+  animation-play-state: paused;
 }
 
 /* Paged deck driven by JS (SnapController): natural scroll within a section,

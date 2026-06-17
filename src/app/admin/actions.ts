@@ -25,6 +25,7 @@ import {
   type Skill,
 } from "@/server/db/skills";
 import { createPost, updatePost, deletePost, type PostInput } from "@/server/db/posts";
+import { deleteComment } from "@/server/db/comments";
 
 async function assertAdmin() {
   const c = await cookies();
@@ -156,4 +157,13 @@ export async function removePost(fd: FormData) {
   await deletePost(num(fd, "id"));
   refresh("/admin/blog", "/blog");
   redirect("/admin/blog");
+}
+
+/* ---------------- Comments (moderation) ---------------- */
+export async function removeComment(fd: FormData) {
+  await assertAdmin();
+  await deleteComment(num(fd, "id"));
+  const slug = str(fd, "slug");
+  refresh("/admin/comments", slug ? `/blog/${slug}` : "/blog");
+  redirect("/admin/comments");
 }

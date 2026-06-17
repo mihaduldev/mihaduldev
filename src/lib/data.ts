@@ -8,17 +8,17 @@ export const profile = {
   name: "Mihadul Islam",
   fullName: "Md Mehadul Islam",
   initials: "MI",
-  role: "Senior Software Engineer",
+  role: "Full-Stack .NET Engineer",
   roles: [
-    "ASP.NET Core Engineer",
+    "Full-Stack .NET Engineer",
     "Cloud & System Design",
-    "AI-Powered Applications",
+    "AI Integrations",
     "Clean Architecture Advocate",
   ],
   headline:
-    "Senior Software Engineer focused on .NET, Cloud, System Design, and AI-powered applications.",
+    "Full-Stack .NET Engineer specializing in Cloud, System Design, and AI integrations.",
   tagline:
-    "I build reliable backend systems, clean APIs, scalable web platforms, and practical AI integrations for real business problems.",
+    "I build full-stack applications across the .NET ecosystem — scalable backends, clean APIs, and modern web frontends — with cloud-ready delivery and practical AI integrations that help real businesses operate faster and more reliably.",
   location: "Bangladesh",
   available: true,
   avatar: "https://avatars.githubusercontent.com/u/mihaduldev",
@@ -85,6 +85,7 @@ export const skillGroups: SkillGroup[] = [
       { name: "REST API", color: "#02569B", core: true, desc: "Clean, secure, versioned API contract design." },
       { name: "Clean Architecture", color: "#5E687E", core: true, desc: "Domain, application, and infrastructure layers, cleanly separated." },
       { name: "Microservices", color: "#0052CC", core: true, desc: "Modular, independently deployable service design." },
+      { name: "Node.js", color: "#339933", logo: "nodejs/nodejs-original", desc: "JavaScript runtime for services and tooling alongside .NET." },
     ],
   },
   {
@@ -99,6 +100,7 @@ export const skillGroups: SkillGroup[] = [
       { name: "HTML5", color: "#E34F26", logo: "html5/html5-original", desc: "Semantic, accessible markup." },
       { name: "CSS3", color: "#1572B6", logo: "css3/css3-original", desc: "Responsive, modern styling." },
       { name: "Tailwind CSS", color: "#06B6D4", core: true, logo: "tailwindcss/tailwindcss-original", desc: "Rapid, consistent UI with a design system." },
+      { name: "Next.js", color: "#0070F3", desc: "React framework for full-stack, server-rendered web apps." },
     ],
   },
   {
@@ -123,9 +125,20 @@ export const skillGroups: SkillGroup[] = [
       "Practical LLM features, retrieval-based workflows, and automation that saves real time.",
     skills: [
       { name: "Python", color: "#3776AB", core: true, logo: "python/python-original", desc: "Automation scripts and AI tooling." },
+      { name: "FastAPI", color: "#009688", logo: "fastapi/fastapi-original", desc: "Lightweight Python APIs for AI and automation services." },
       { name: "OpenAI", color: "#10A37F", core: true, desc: "LLM-powered features and assistants." },
-      { name: "LangChain", color: "#1C7C54", desc: "Retrieval and agent-style workflows." },
+      { name: "LangChain", color: "#1C7C54", core: true, desc: "Retrieval and agent-style workflows." },
       { name: "Automation", color: "#FF6F00", desc: "Cutting manual work with scripts and AI." },
+    ],
+  },
+  {
+    category: "Mobile",
+    icon: "Smartphone",
+    description:
+      "Cross-platform mobile apps from a single codebase when a project needs to reach phones too.",
+    skills: [
+      { name: "Flutter", color: "#02569B", logo: "flutter/flutter-original", desc: "Cross-platform iOS and Android apps from one codebase." },
+      { name: "Dart", color: "#0175C2", logo: "dart/dart-original", desc: "The language powering Flutter app development." },
     ],
   },
 ];

@@ -13,7 +13,7 @@ import { useEffect } from "react";
  *     section over a fixed, easeable duration (deliberate, easy to follow).
  * Touch / small screens / reduced-motion fall back to plain native scrolling.
  */
-const DURATION = 1000; // ms — bump down for snappier, up for slower/calmer
+const DURATION = 1650; // ms — glide length; lower = snappier, higher = slower/slow-motion
 
 export function SnapController() {
   useEffect(() => {
@@ -55,11 +55,17 @@ export function SnapController() {
       // also smooth-scrolls to each frame's target → doubled/juddery motion.
       const prevBehavior = root.style.scrollBehavior;
       root.style.scrollBehavior = "auto";
+      // Pause paint-heavy background animations (SVG dash flow, blurred node
+      // pulses, marquees) for the duration of the glide so the scroll loop
+      // owns the main thread → no competing repaints, smoother motion.
+      root.setAttribute("data-scrolling", "");
       const startY = window.scrollY;
       const dist = y - startY;
       let start: number | null = null;
-      const ease = (t: number) =>
-        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      // Smootherstep (6t^5-15t^4+10t^3): zero velocity AND acceleration at both
+      // ends → the gentlest possible departure/arrival (no jerk) for a calm,
+      // fluid journey, while keeping a responsive mid-glide.
+      const ease = (t: number) => t * t * t * (t * (6 * t - 15) + 10);
       const step = (ts: number) => {
         if (start === null) start = ts;
         const p = Math.min((ts - start) / DURATION, 1);
@@ -67,8 +73,9 @@ export function SnapController() {
         if (p < 1) raf = requestAnimationFrame(step);
         else {
           animating = false;
-          lockUntil = performance.now() + 320; // cooldown so trackpad inertia can't double-advance
+          lockUntil = performance.now() + 360; // cooldown so trackpad inertia can't double-advance
           root.style.scrollBehavior = prevBehavior;
+          root.removeAttribute("data-scrolling");
         }
       };
       raf = requestAnimationFrame(step);
@@ -136,6 +143,7 @@ export function SnapController() {
     return () => {
       cancelAnimationFrame(raf);
       root.removeAttribute("data-snap");
+      root.removeAttribute("data-scrolling");
       big.removeEventListener("change", apply);
       fine.removeEventListener("change", apply);
       reduce.removeEventListener("change", apply);
