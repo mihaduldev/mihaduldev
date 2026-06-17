@@ -100,9 +100,8 @@ export function ChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId: sessionRef.current, message: text }),
       });
-      // Errors come back as JSON; a successful reply is a streamed text body.
-      if (!res.ok || !res.body) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
+      const data = (await res.json().catch(() => ({}))) as { reply?: string; error?: string };
+      if (!res.ok || !data.reply) {
         setMessages((m) => [
           ...m,
           {
@@ -112,33 +111,25 @@ export function ChatWidget() {
         ]);
         return;
       }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let acc = "";
-      let added = false;
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        if (!chunk) continue;
-        acc += chunk;
-        if (!added) {
-          added = true;
-          setMessages((m) => [...m, { role: "assistant", content: acc }]);
-        } else {
-          setMessages((m) => {
-            const c = [...m];
-            c[c.length - 1] = { role: "assistant", content: acc };
-            return c;
-          });
-        }
+      // Typewriter reveal — finishes in ~2s regardless of length, so it reads
+      // like a streaming chatbot while the request itself stays non-streaming.
+      const reply = data.reply;
+      const step = Math.max(2, Math.ceil(reply.length / 140));
+      setMessages((m) => [...m, { role: "assistant", content: reply.slice(0, step) }]);
+      for (let i = step * 2; i < reply.length; i += step) {
+        await new Promise((r) => setTimeout(r, 16));
+        const slice = reply.slice(0, i);
+        setMessages((m) => {
+          const c = [...m];
+          c[c.length - 1] = { role: "assistant", content: slice };
+          return c;
+        });
       }
-      if (!added) {
-        setMessages((m) => [
-          ...m,
-          { role: "assistant", content: "Sorry, I didn't catch that — could you rephrase?" },
-        ]);
-      }
+      setMessages((m) => {
+        const c = [...m];
+        c[c.length - 1] = { role: "assistant", content: reply };
+        return c;
+      });
     } catch {
       setError("Network error — please try again.");
       setMessages((m) => [
@@ -196,6 +187,7 @@ export function ChatWidget() {
           <motion.div
             role="dialog"
             aria-label="Mihadul's assistant"
+            data-scroll-isolate
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}

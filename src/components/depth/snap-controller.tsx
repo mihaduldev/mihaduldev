@@ -91,6 +91,10 @@ export function SnapController() {
 
     function onWheel(e: WheelEvent) {
       if (!enabled) return;
+      // Overlays that scroll internally (e.g. the chat widget) opt out of the
+      // deck hijack so the wheel scrolls THEM natively, not the page.
+      const t = e.target as Element | null;
+      if (t && t.closest("[data-scroll-isolate]")) return;
       if (animating || performance.now() < lockUntil) {
         e.preventDefault();
         return;
