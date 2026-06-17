@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   title: "Resume",
   description: `Resume / CV of ${profile.name} (${profile.fullName}) — ${profile.role} based in ${profile.location}.`,
   alternates: { canonical: "/resume" },
+  openGraph: {
+    type: "profile",
+    url: "/resume",
+    title: `Resume · ${profile.name}`,
+    description: `Resume / CV of ${profile.name} (${profile.fullName}) — ${profile.role}.`,
+  },
 };
 
 const contactIcons = { Github, Linkedin, Mail, Globe } as const;

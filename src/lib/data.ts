@@ -30,7 +30,7 @@ export const profile = {
 } as const;
 
 export const about = {
-  lead: "I'm a Bangladesh-based Software Engineer who enjoys turning messy business requirements into clean, maintainable software.",
+  lead: "I'm Mihadul Islam (also written Md Mehadul Islam) — a Bangladesh-based Full-Stack .NET Engineer who turns messy business requirements into clean, maintainable software.",
   body: "My main focus is ASP.NET Core, Web API, database design, cloud deployment, and AI-assisted product development. I care about practical engineering: readable code, clear architecture, strong security basics, automated deployment, and systems that real users can depend on.",
   buildingLabel: "Currently building & improving products around",
   building: [

@@ -28,6 +28,17 @@ const siteUrl = "https://mihad.site";
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
   description: `${profile.name} (also ${profile.fullName}) is a ${profile.role} based in ${profile.location}. ${profile.tagline}`,
+  openGraph: {
+    type: "profile",
+    url: "/",
+    title: `${profile.name} — ${profile.role}`,
+    description: profile.tagline,
+    siteName: profile.name,
+    locale: "en_US",
+    firstName: "Mihadul",
+    lastName: "Islam",
+    username: profile.githubUsername,
+  },
 };
 
 // Home is the person's profile page → ties the page to the Person entity.

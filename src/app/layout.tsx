@@ -69,15 +69,12 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    type: "profile",
+    type: "website",
     url: siteUrl,
     title: `${profile.name} — ${profile.role}`,
     description: profile.tagline,
     siteName: profile.name,
     locale: "en_US",
-    firstName: "Mihadul",
-    lastName: "Islam",
-    username: profile.githubUsername,
   },
   twitter: {
     card: "summary_large_image",
@@ -131,7 +128,7 @@ const jsonLd = {
       description: profile.tagline,
       url: siteUrl,
       image: `${siteUrl}/portrait.jpg`,
-      email: `mailto:${profile.email}`,
+      email: profile.email,
       knowsAbout,
       worksFor,
       nationality: { "@type": "Country", name: "Bangladesh" },
@@ -140,7 +137,10 @@ const jsonLd = {
         addressCountry: "BD",
         addressLocality: profile.location,
       },
-      sameAs: socials.filter((s) => s.href.startsWith("http")).map((s) => s.href),
+      // external profiles only (own site is already bound via @id + url)
+      sameAs: socials
+        .filter((s) => s.href.startsWith("http") && !s.href.startsWith(siteUrl))
+        .map((s) => s.href),
     },
   ],
 };

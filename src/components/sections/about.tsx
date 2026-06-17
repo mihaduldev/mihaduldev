@@ -24,7 +24,8 @@ export function About() {
         <div className="mt-12 grid gap-6 sm:mt-16 lg:grid-cols-[1.3fr_1fr]">
           <Reveal>
             <GlassCard tilt={false} className="h-full p-8">
-              <p className="text-lg leading-relaxed text-secondary">{about.body}</p>
+              <p className="text-lg leading-relaxed text-secondary">{about.lead}</p>
+              <p className="mt-4 text-base leading-relaxed text-tertiary">{about.body}</p>
               <div className="mt-8 flex items-center gap-4 border-t border-border pt-6">
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-react-cyan text-lg font-bold text-brand-foreground glow-soft">
                   {profile.initials}

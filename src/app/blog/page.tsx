@@ -11,6 +11,13 @@ export const metadata: Metadata = {
   description:
     "Notes on .NET, software architecture, DevOps, and practical AI by Mihadul Islam.",
   alternates: { canonical: "/blog" },
+  openGraph: {
+    type: "website",
+    url: "/blog",
+    title: "Writing · Mihadul Islam",
+    description:
+      "Notes on .NET, software architecture, DevOps, and practical AI by Mihadul Islam.",
+  },
 };
 
 export default async function BlogIndexPage() {

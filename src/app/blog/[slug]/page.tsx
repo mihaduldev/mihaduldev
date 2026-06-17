@@ -34,6 +34,7 @@ export async function generateMetadata({
       title: post.title,
       description: post.excerpt,
       type: "article",
+      url: `/blog/${post.slug}`,
       publishedTime: post.publishedAt ?? undefined,
     },
   };
@@ -66,7 +67,7 @@ export default async function BlogPostPage({
           datePublished: post.publishedAt ?? undefined,
           dateModified: post.publishedAt ?? undefined,
           keywords: post.tags.join(", "),
-          image: `${site}/portrait.jpg`,
+          image: { "@type": "ImageObject", url: `${site}/opengraph-image`, width: 1200, height: 630 },
           inLanguage: "en",
           author: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
           publisher: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
