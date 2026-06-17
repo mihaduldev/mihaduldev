@@ -64,9 +64,29 @@ export default async function BlogPostPage({
           headline: post.title,
           description: post.excerpt,
           datePublished: post.publishedAt ?? undefined,
+          dateModified: post.publishedAt ?? undefined,
           keywords: post.tags.join(", "),
-          author: { "@type": "Person", name: profile.fullName, url: site },
+          image: `${site}/portrait.jpg`,
+          inLanguage: "en",
+          author: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
+          publisher: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
           mainEntityOfPage: `${site}/blog/${post.slug}`,
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: site },
+            { "@type": "ListItem", position: 2, name: "Writing", item: `${site}/blog` },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: post.title,
+              item: `${site}/blog/${post.slug}`,
+            },
+          ],
         }}
       />
 

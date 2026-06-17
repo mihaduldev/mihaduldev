@@ -3,7 +3,10 @@ import { listExperiences } from "@/server/db/experiences";
 import { listProjects } from "@/server/db/projects";
 import { listSkillGroups } from "@/server/db/skills";
 import { listPublishedPosts } from "@/server/db/posts";
+import type { Metadata } from "next";
 import { getHeroContent, getScrollSettings } from "@/server/db/settings";
+import { profile } from "@/lib/data";
+import { JsonLd } from "@/components/seo/json-ld";
 import { SnapController } from "@/components/depth/snap-controller";
 import { SectionPager } from "@/components/depth/section-pager";
 import { Panel } from "@/components/depth/panel";
@@ -19,6 +22,26 @@ import { Principles } from "@/components/sections/principles";
 import { Contact } from "@/components/sections/contact";
 
 export const revalidate = 3600;
+
+const siteUrl = "https://mihad.site";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  description: `${profile.name} (also ${profile.fullName}) is a ${profile.role} based in ${profile.location}. ${profile.tagline}`,
+};
+
+// Home is the person's profile page → ties the page to the Person entity.
+const profilePageLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "@id": `${siteUrl}/#profilepage`,
+  url: siteUrl,
+  name: `${profile.name} — ${profile.role}`,
+  isPartOf: { "@id": `${siteUrl}/#website` },
+  about: { "@id": `${siteUrl}/#person` },
+  mainEntity: { "@id": `${siteUrl}/#person` },
+  inLanguage: "en",
+};
 
 const pager = [
   { id: "home", label: "Intro" },
@@ -56,6 +79,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={profilePageLd} />
       <SnapController settings={scroll} />
       <SectionPager items={pager} />
 

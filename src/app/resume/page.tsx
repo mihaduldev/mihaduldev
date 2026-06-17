@@ -14,7 +14,8 @@ import { PrintButton as PrintControl } from "@/components/print-button";
 
 export const metadata: Metadata = {
   title: "Resume",
-  description: `Resume of ${profile.fullName} — ${profile.role}.`,
+  description: `Resume / CV of ${profile.name} (${profile.fullName}) — ${profile.role} based in ${profile.location}.`,
+  alternates: { canonical: "/resume" },
 };
 
 const contactIcons = { Github, Linkedin, Mail, Globe } as const;

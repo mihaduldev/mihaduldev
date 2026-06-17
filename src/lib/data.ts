@@ -7,6 +7,8 @@
 export const profile = {
   name: "Mihadul Islam",
   fullName: "Md Mehadul Islam",
+  /** Name spellings people search for — used across SEO (alternateName, keywords). */
+  altNames: ["Md Mehadul Islam", "Md. Mehadul Islam", "Mehadul Islam"],
   initials: "MI",
   role: "Full-Stack .NET Engineer",
   roles: [

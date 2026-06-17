@@ -13,6 +13,11 @@ AUTH_SECRET=replace-with-a-long-random-string
 # Leave blank to disable the beacon.
 NEXT_PUBLIC_CF_BEACON=
 
+# Google Search Console verification token (Search Console → Settings →
+# Ownership verification → HTML tag → the `content` value). Adds the
+# google-site-verification meta tag. Leave blank until you have it.
+NEXT_PUBLIC_GOOGLE_VERIFICATION=
+
 # OpenRouter API key for the site AI assistant (https://openrouter.ai/keys).
 # Server-side only — never exposed to the browser. In production:
 # `wrangler secret put OPENROUTER_API_KEY`.
