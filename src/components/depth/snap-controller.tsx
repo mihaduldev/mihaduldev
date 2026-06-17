@@ -67,7 +67,7 @@ export function SnapController() {
         if (p < 1) raf = requestAnimationFrame(step);
         else {
           animating = false;
-          lockUntil = performance.now() + 140; // brief cooldown vs. inertia
+          lockUntil = performance.now() + 320; // cooldown so trackpad inertia can't double-advance
           root.style.scrollBehavior = prevBehavior;
         }
       };
@@ -93,12 +93,16 @@ export function SnapController() {
       const el = list[currentIndex(list)];
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight;
+      // Only let the browser scroll natively when a section is GENUINELY taller
+      // than the viewport (lots more content below/above). Otherwise page with
+      // the smooth glide — so near-viewport sections don't fast-scroll natively.
+      const SLACK = 140;
       if (e.deltaY > 0) {
-        if (r.bottom > vh + 8) return; // more of this section below → read it
+        if (r.bottom > vh + SLACK) return; // substantial content below → read it
         e.preventDefault();
         go(1);
       } else {
-        if (r.top < -8) return; // more above → read it
+        if (r.top < -SLACK) return; // substantial content above → read it
         e.preventDefault();
         go(-1);
       }

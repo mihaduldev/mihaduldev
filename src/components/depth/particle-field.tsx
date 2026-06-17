@@ -24,19 +24,36 @@ export function ParticleField({ text = "MI" }: { text?: string }) {
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cyan = "rgba(97,218,251,1)";
 
-    // cached glow sprite
+    // Theme-aware rendering: on the dark stage particles glow additively (cyan);
+    // on the light stage additive blending vanishes against white, so we paint a
+    // soft blue monogram with normal compositing instead.
+    let isDark = document.documentElement.classList.contains("dark");
+    const blend = (): GlobalCompositeOperation => (isDark ? "lighter" : "source-over");
+
+    // cached glow sprite, rebuilt when the theme flips
     const sprite = document.createElement("canvas");
     const ss = 24;
     sprite.width = sprite.height = ss;
     const sctx = sprite.getContext("2d")!;
-    const grad = sctx.createRadialGradient(ss / 2, ss / 2, 0, ss / 2, ss / 2, ss / 2);
-    grad.addColorStop(0, "rgba(120,225,255,0.6)");
-    grad.addColorStop(0.45, "rgba(88,196,220,0.26)");
-    grad.addColorStop(1, "rgba(88,196,220,0)");
-    sctx.fillStyle = grad;
-    sctx.fillRect(0, 0, ss, ss);
+    function buildSprite() {
+      sctx.clearRect(0, 0, ss, ss);
+      const grad = sctx.createRadialGradient(ss / 2, ss / 2, 0, ss / 2, ss / 2, ss / 2);
+      if (isDark) {
+        grad.addColorStop(0, "rgba(120,225,255,0.6)");
+        grad.addColorStop(0.45, "rgba(88,196,220,0.26)");
+        grad.addColorStop(1, "rgba(88,196,220,0)");
+      } else {
+        // Lower alpha on light: sprites tile/overlap across letter interiors, so
+        // keep per-sprite opacity small or the monogram saturates into a blob.
+        grad.addColorStop(0, "rgba(8,126,164,0.17)");
+        grad.addColorStop(0.45, "rgba(10,140,180,0.08)");
+        grad.addColorStop(1, "rgba(10,163,194,0)");
+      }
+      sctx.fillStyle = grad;
+      sctx.fillRect(0, 0, ss, ss);
+    }
+    buildSprite();
 
     let particles: P[] = [];
     let w = 0;
@@ -91,7 +108,7 @@ export function ParticleField({ text = "MI" }: { text?: string }) {
 
     function drawStatic() {
       ctx.clearRect(0, 0, w, h);
-      ctx.globalCompositeOperation = "lighter";
+      ctx.globalCompositeOperation = blend();
       for (const p of particles) ctx.drawImage(sprite, p.tx - 4, p.ty - 4, 8, 8);
       ctx.globalCompositeOperation = "source-over";
     }
@@ -101,7 +118,7 @@ export function ParticleField({ text = "MI" }: { text?: string }) {
     function frame() {
       t += 0.01;
       ctx.clearRect(0, 0, w, h);
-      ctx.globalCompositeOperation = "lighter";
+      ctx.globalCompositeOperation = blend();
       const R = 110;
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -152,11 +169,25 @@ export function ParticleField({ text = "MI" }: { text?: string }) {
     const ro = new ResizeObserver(() => buildTargets());
     ro.observe(canvas);
 
+    // Re-theme the sprite the moment the light/dark class flips on <html>.
+    const themeObs = new MutationObserver(() => {
+      const next = document.documentElement.classList.contains("dark");
+      if (next === isDark) return;
+      isDark = next;
+      buildSprite();
+      if (reduce) drawStatic();
+    });
+    themeObs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerout", onLeave);
       ro.disconnect();
+      themeObs.disconnect();
     };
   }, [text]);
 

@@ -76,7 +76,7 @@ export default async function BlogPostPage({
         {post.tags.map((tag) => (
           <span
             key={tag}
-            className="rounded-md border border-border bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-accent"
+            className="rounded-md border border-border bg-primary/[0.03] px-2.5 py-1 text-xs font-medium text-accent"
           >
             {tag}
           </span>

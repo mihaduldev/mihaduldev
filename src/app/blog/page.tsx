@@ -52,7 +52,7 @@ export default async function BlogIndexPage() {
                   {post.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-md border border-border bg-white/[0.03] px-2 py-0.5 text-xs font-medium text-secondary"
+                      className="rounded-md border border-border bg-primary/[0.03] px-2 py-0.5 text-xs font-medium text-secondary"
                     >
                       {tag}
                     </span>

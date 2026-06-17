@@ -24,13 +24,13 @@ const md = {
   ),
   li: ({ node, ...p }: any) => <li className="leading-relaxed" {...p} />,
   blockquote: ({ node, ...p }: any) => (
-    <blockquote className="mt-6 border-l-2 border-accent bg-white/[0.03] py-2 pl-5 pr-4 italic text-secondary" {...p} />
+    <blockquote className="mt-6 border-l-2 border-accent bg-primary/[0.03] py-2 pl-5 pr-4 italic text-secondary" {...p} />
   ),
   code: ({ node, ...p }: any) => (
-    <code className="rounded-md border border-border bg-white/[0.04] px-1.5 py-0.5 font-mono text-[0.85em] text-accent" {...p} />
+    <code className="rounded-md border border-border bg-primary/[0.05] px-1.5 py-0.5 font-mono text-[0.85em] text-accent" {...p} />
   ),
   pre: ({ node, ...p }: any) => (
-    <pre className="mt-6 overflow-x-auto rounded-xl border border-border bg-black/40 p-4 font-mono text-sm" {...p} />
+    <pre className="mt-6 overflow-x-auto rounded-xl border border-border bg-wash-2 p-4 font-mono text-sm dark:bg-black/40" {...p} />
   ),
   hr: () => <hr className="my-10 border-border" />,
 };

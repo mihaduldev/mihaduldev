@@ -8,7 +8,7 @@ export const profile = {
   name: "Mihadul Islam",
   fullName: "Md Mehadul Islam",
   initials: "MI",
-  role: "Software Engineer",
+  role: "Senior Software Engineer",
   roles: [
     "ASP.NET Core Engineer",
     "Cloud & System Design",
@@ -16,7 +16,7 @@ export const profile = {
     "Clean Architecture Advocate",
   ],
   headline:
-    "Software Engineer focused on .NET, Cloud, System Design, and AI-powered applications.",
+    "Senior Software Engineer focused on .NET, Cloud, System Design, and AI-powered applications.",
   tagline:
     "I build reliable backend systems, clean APIs, scalable web platforms, and practical AI integrations for real business problems.",
   location: "Bangladesh",
@@ -139,46 +139,61 @@ export type Experience = {
   icon: string;
 };
 
-/**
- * Focus areas framed as a timeline (the source README lists focus areas and
- * principles rather than dated roles). Easily replaced with real roles.
- */
+/** Real work journey (reverse-chronological). Lower `sort` = nearer the top. */
 export const experience: Experience[] = [
   {
-    period: "Now",
-    title: "Backend & Cloud Engineering",
-    org: "Enterprise Product Work",
+    period: "Jul 2025 — Present",
+    title: "Senior Software Engineer",
+    org: "UAPP · London, UK",
     description:
-      "Building enterprise-grade backend systems with ASP.NET Core and Clean Architecture — clean APIs, solid database design, and dependable business workflows.",
-    tags: ["ASP.NET Core", "Clean Architecture", "Web API", "SQL"],
-    icon: "Server",
-  },
-  {
-    period: "Ongoing",
-    title: "Cloud Deployment & DevOps",
-    org: "Modern Delivery Workflows",
-    description:
-      "Shipping cloud-ready applications using Docker, AWS, and modern CI/CD so releases are automated, repeatable, and safe.",
-    tags: ["Docker", "AWS", "GitHub Actions", "CI/CD"],
-    icon: "Cloud",
-  },
-  {
-    period: "Ongoing",
-    title: "AI-Powered Product Development",
-    org: "Applied LLM Engineering",
-    description:
-      "Designing practical AI tools with LLMs, automation, and retrieval-based workflows that solve real business problems.",
-    tags: ["LLMs", "OpenAI", "LangChain", "Automation"],
+      "Building an AI assistant for students and universities — ASP.NET Core Web APIs, Generative-AI / LLM features, Dockerized cloud deployment, authentication, and unit-tested, dependable services.",
+    tags: ["ASP.NET Core", "Web API", "Generative AI", "Docker", "Cloud"],
     icon: "Sparkles",
   },
   {
-    period: "Continuous",
-    title: "Developer Education & System Design",
-    org: "Community & Writing",
+    period: "Sep 2024 — Present",
+    title: "Chief Technology Officer",
+    org: "IT Solution Tree · Khulna, BD",
     description:
-      "Creating developer education content around .NET, C#, OOP, and system design — turning hard concepts into shared understanding.",
-    tags: [".NET", "C#", "OOP", "System Design"],
+      "Technical leadership and architecture — technology selection, product direction, deployment and infrastructure planning, and guiding the engineering team on delivery.",
+    tags: ["Architecture", "System Design", "Leadership", "Cloud"],
+    icon: "Boxes",
+  },
+  {
+    period: "Jun 2024 — Jul 2025",
+    title: "Software Engineer",
+    org: "Bluebay IT Limited · Dhaka, BD",
+    description:
+      "Built and maintained production software against real business requirements — ASP.NET Core / Web API development, database-backed applications, feature work, debugging, and deployment.",
+    tags: ["ASP.NET Core", "Web API", "SQL", "Deployment"],
+    icon: "Server",
+  },
+  {
+    period: "Oct 2024 — Dec 2024",
+    title: "Senior .NET Developer",
+    org: "Octopi Digital Ltd. · Contract",
+    description:
+      "Senior-level .NET backend work — contributing implementation and architecture to an existing project on a short, focused engagement.",
+    tags: ["C#", ".NET", "Web API"],
+    icon: "Code2",
+  },
+  {
+    period: "2021 — 2024",
+    title: "Software Engineer — Trainee → Intern → Engineer",
+    org: "Dev Skill · Mirpur, Dhaka, BD",
+    description:
+      "Where my professional foundation was built. Progressed from C# trainee through engineering intern to Software Engineer over ~3 years — shipping ASP.NET Core apps, Web APIs, database integration, auth, and production maintenance.",
+    tags: ["C#", "ASP.NET Core", "Web API", "OOP", "Databases"],
     icon: "GraduationCap",
+  },
+  {
+    period: "Dec 2020 — Apr 2021",
+    title: "Trainee",
+    org: "Dreamland IT · Dhaka, BD",
+    description:
+      "Where it began — my first formal step into professional software/IT work, building the discipline and technical base for a .NET engineering career.",
+    tags: ["Foundations", "IT", "Software"],
+    icon: "Briefcase",
   },
 ];
 

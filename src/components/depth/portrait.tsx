@@ -10,7 +10,13 @@ import { profile } from "@/lib/data";
  * monogram fallback, so the layout is never broken.
  */
 // Tries these in order, so any of these filenames in /public just works.
-const SOURCES = ["/portrait.jpg", "/portrait.jpeg", "/portrait.png", "/portrait.webp"];
+// The ?v= busts the browser cache when the photo is reprocessed.
+const SOURCES = [
+  "/portrait.jpg?v=3",
+  "/portrait.jpeg?v=3",
+  "/portrait.png?v=3",
+  "/portrait.webp?v=3",
+];
 
 export function Portrait() {
   const [srcIndex, setSrcIndex] = useState(0);
@@ -41,7 +47,7 @@ export function Portrait() {
             className="h-full w-full object-cover object-center"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[#0e1726] to-[#0a0f1a]">
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-wash-2 to-card">
             <span className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-react-cyan text-3xl font-bold text-brand-foreground glow-soft">
               {profile.initials}
             </span>

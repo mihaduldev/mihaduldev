@@ -45,7 +45,7 @@ export function Contact() {
   }
 
   const field =
-    "w-full rounded-xl border border-border bg-white/[0.03] px-4 py-3 text-sm text-primary outline-none transition-colors placeholder:text-tertiary focus:border-accent";
+    "w-full rounded-xl border border-border bg-primary/[0.03] px-4 py-3 text-sm text-primary outline-none transition-colors placeholder:text-tertiary focus:border-accent";
 
   return (
     <div className="relative w-full">

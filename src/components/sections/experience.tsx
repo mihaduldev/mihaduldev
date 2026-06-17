@@ -23,7 +23,7 @@ export function Experience({ items }: { items: ExperienceItem[] }) {
   return (
     <div className="relative w-full">
       <div className="mx-auto max-w-4xl px-6">
-        <SectionHeading eyebrow="Focus Areas" title="Where my work lives" />
+        <SectionHeading eyebrow="Experience" title="The journey so far" />
 
         {/* Left-rail timeline */}
         <div ref={ref} className="relative mt-12 sm:mt-16">
@@ -68,7 +68,7 @@ export function Experience({ items }: { items: ExperienceItem[] }) {
                       {item.tags.map((t) => (
                         <span
                           key={t}
-                          className="rounded-md border border-border bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-secondary"
+                          className="rounded-md border border-border bg-primary/[0.03] px-2.5 py-1 text-xs font-medium text-secondary"
                         >
                           {t}
                         </span>

@@ -20,7 +20,7 @@
   --brand: #087ea4;
   --brand-strong: #066b8c;
   --brand-foreground: #ffffff;
-  --accent: #0aa3c2; /* cyan that reads on white */
+  --accent: #087ea4; /* AA on white as both text (4.6:1) and white-on-fill */
   --glow: #58c4dc;
   --react-cyan: #61dafb;
 
@@ -29,9 +29,19 @@
   --glow-md: 0 0 22px color-mix(in srgb, var(--glow) 50%, transparent);
   --glow-lg: 0 0 32px color-mix(in srgb, var(--glow) 45%, transparent);
 
-  --ring: #0aa3c2;
+  --ring: #087ea4;
   --radius: 1rem;
   --ease-smooth: cubic-bezier(0.21, 0.47, 0.32, 0.98);
+
+  /* Hero stage — airy light wash with a soft cyan vignette (theme-aware). */
+  --hero-stage: radial-gradient(
+    ellipse 95% 85% at 60% 40%,
+    #ffffff 0%,
+    #eef6fb 55%,
+    #e3eff6 100%
+  );
+  --hero-fade: #ffffff; /* directional readability fades blend to the wash */
+  --hero-particle: #0aa3c2; /* particles read as a soft blue monogram on white */
 }
 
 /*
@@ -63,6 +73,16 @@
   --react-cyan: #61dafb;
 
   --ring: #58c4dc;
+
+  /* Hero stage — deep-space gradient where the cyan particles glow. */
+  --hero-stage: radial-gradient(
+    ellipse 95% 85% at 60% 40%,
+    #0b1322 0%,
+    #070a12 70%,
+    #05070d 100%
+  );
+  --hero-fade: #05070d;
+  --hero-particle: #61dafb;
 }
 
 @theme inline {
@@ -198,10 +218,10 @@
 
   /* Frosted glass surfaces */
   .glass {
-    background-color: color-mix(in srgb, var(--card) 80%, transparent);
+    background-color: color-mix(in srgb, var(--card) 85%, transparent);
     backdrop-filter: blur(18px) saturate(160%);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
-    border: 1px solid color-mix(in srgb, var(--primary) 9%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
   }
   .dark .glass {
     background-color: color-mix(in srgb, #ffffff 5%, transparent);

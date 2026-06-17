@@ -13,7 +13,7 @@ function SkillBadge({ skill }: { skill: Skill }) {
   const [err, setErr] = useState(false);
   if (skill.logo && !err) {
     return (
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-white/[0.06] p-2 transition-transform group-hover:scale-110">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-primary/[0.06] p-2 transition-transform group-hover:scale-110">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${skill.logo}.svg`}

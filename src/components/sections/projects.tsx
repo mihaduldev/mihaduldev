@@ -39,7 +39,7 @@ export function Projects({ projects }: { projects: Project[] }) {
                     </span>
                     <div className="flex items-center gap-2">
                       {p.featured && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-white/12 bg-white/5 px-2.5 py-1 text-xs font-medium text-accent backdrop-blur">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
                           <Star className="size-3 fill-accent" /> Featured
                         </span>
                       )}
