@@ -29,10 +29,12 @@ const components: Components = {
   blockquote: ({ node, ...p }: any) => (
     <blockquote className="my-2 border-l-2 border-accent/50 pl-2 italic" {...p} />
   ),
-  // GFM tables — wrapped so wide tables scroll instead of overflowing the bubble
+  // GFM tables — given a min-width so columns stay readable and the wrapper
+  // scrolls horizontally, rather than squishing to one word per line in the
+  // narrow chat panel. (The assistant is also told to avoid tables in chat.)
   table: ({ node, ...p }: any) => (
-    <div className="my-2 overflow-x-auto last:mb-0">
-      <table className="w-full border-collapse text-[0.85em]" {...p} />
+    <div className="my-2 -mx-1 overflow-x-auto last:mb-0">
+      <table className="w-full min-w-[28rem] border-collapse text-[0.8em]" {...p} />
     </div>
   ),
   th: ({ node, ...p }: any) => (
