@@ -234,6 +234,19 @@
     background-color: color-mix(in srgb, #ffffff 5%, transparent);
     border-color: color-mix(in srgb, #ffffff 10%, transparent);
   }
+  /* The fixed navigation sits above scrolling content. In production sections
+     can be taller than one viewport, so headings may pass underneath it; keep
+     the nav frosted but opaque enough that text never visually overlaps it. */
+  .nav-glass {
+    background-color: color-mix(in srgb, var(--card) 94%, transparent);
+    backdrop-filter: blur(22px) saturate(165%);
+    -webkit-backdrop-filter: blur(22px) saturate(165%);
+    border: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+  .dark .nav-glass {
+    background-color: color-mix(in srgb, #07111d 90%, transparent);
+    border-color: color-mix(in srgb, #ffffff 12%, transparent);
+  }
   .glass-strong {
     background-color: color-mix(in srgb, var(--card) 72%, transparent);
     backdrop-filter: blur(26px) saturate(170%);

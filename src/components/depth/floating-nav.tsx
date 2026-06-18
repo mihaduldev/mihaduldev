@@ -84,7 +84,7 @@ export function FloatingNav() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
         aria-label="Primary"
-        className="glass glow-soft flex w-full max-w-3xl items-center justify-between rounded-full py-2 pl-2.5 pr-2.5 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)] ring-1 ring-black/[0.03] dark:ring-white/[0.04]"
+        className="nav-glass glow-soft flex w-full max-w-3xl items-center justify-between rounded-full py-2 pl-2.5 pr-2.5 shadow-[0_10px_40px_-18px_rgba(0,0,0,0.55)] ring-1 ring-black/[0.03] dark:ring-white/[0.04]"
       >
         <Link
           href="#home"
