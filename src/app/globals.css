@@ -402,6 +402,46 @@
   }
 }
 
+/* Assistant widget — slow rotating conic edge on the launcher */
+@keyframes aurora-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Assistant widget — calm radar pulse on the brand-mark avatar */
+@keyframes aurora-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  70%,
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  /* Rotating 1px conic hairline that traces the launcher's rounded edge. */
+  .aurora-edge {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    /* --accent (not react-cyan) so the edge stays visible in light theme too */
+    background: conic-gradient(from 0deg, transparent, var(--accent), transparent 40%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.55;
+    pointer-events: none;
+    animation: aurora-spin 14s linear infinite;
+  }
+}
+
 /* ============================================================
    Paged deck — one section per viewport, snap between them.
    Enabled only on the home route (data-snap) and md+ pointers.
@@ -424,7 +464,8 @@ html[data-scrolling] .arch-packet,
 html[data-scrolling] .arch-ping,
 html[data-scrolling] .arch-pulse,
 html[data-scrolling] .animate-marquee,
-html[data-scrolling] .animate-marquee-reverse {
+html[data-scrolling] .animate-marquee-reverse,
+html[data-scrolling] .aurora-blob {
   animation-play-state: paused;
 }
 
@@ -466,7 +507,16 @@ html[data-snap] footer {
 }
 
 @media print {
+  @page {
+    margin: 14mm;
+  }
   .no-print {
+    display: none !important;
+  }
+  /* Site chrome is all fixed/decorative (ambient bg, scroll progress, floating
+     nav, chat widget) or the <footer> — none of it belongs on the printed CV. */
+  [class~="fixed"],
+  footer {
     display: none !important;
   }
   body {
@@ -475,5 +525,38 @@ html[data-snap] footer {
   }
   body::before {
     display: none;
+  }
+  /* The resume "paper" prints edge-to-edge in true colour (accents intact). */
+  .resume-paper {
+    margin: 0 !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Clean A4 pagination: keep each heading with its content and never split an
+     entry, bullet, or list item across a page — so the PDF reads like the view.
+     (Tall sections like Experience/Skills are allowed to flow across pages; only
+     individual entries/headings are kept intact, avoiding big blank gaps.) */
+  .resume-paper header {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .resume-paper h2,
+  .resume-paper h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .resume-paper li,
+  .resume-paper .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .resume-paper p {
+    orphans: 3;
+    widows: 3;
   }
 }

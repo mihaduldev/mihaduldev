@@ -8,6 +8,7 @@ export type ChatMsg = { role: ChatRole; content: string; createdAt: number };
 export type ProjectOverview = {
   visitorName: string | null;
   visitorEmail: string | null;
+  visitorWhatsapp: string | null;
   projectType: string | null;
   summary: string;
   goals: string[];
@@ -56,6 +57,20 @@ export async function getOrCreateConversation(
     .first<{ id: number; message_count: number }>();
   if (!row) return null;
   return { id: Number(row.id), messageCount: Number(row.message_count) };
+}
+
+/** Read-only lookup by session (never creates). Used by the widget to detect
+ *  that the admin deleted its conversation, so it can clear stale local history. */
+export async function findConversationBySession(
+  sessionId: string
+): Promise<{ id: number; messageCount: number } | null> {
+  return query(async (db) => {
+    const row = await db
+      .prepare("SELECT id, message_count FROM chat_conversations WHERE session_id = ?")
+      .bind(sessionId)
+      .first<{ id: number; message_count: number }>();
+    return row ? { id: Number(row.id), messageCount: Number(row.message_count) } : null;
+  }, null);
 }
 
 /** Atomic counter for coarse rate limiting. Returns true if ALLOWED. The bucket

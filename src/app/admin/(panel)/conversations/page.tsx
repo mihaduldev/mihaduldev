@@ -11,6 +11,7 @@ import {
 import { getOrGenerateOverview } from "@/server/ai/overview";
 import { removeConversation } from "@/app/admin/actions";
 import { PageHeader, AdminCard } from "@/components/admin/ui";
+import { whatsappLink } from "@/lib/utils";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { LeadsList } from "@/components/admin/leads-list";
 import { ADMIN_PAGE_SIZE } from "@/components/admin/infinite-list";
@@ -78,6 +79,25 @@ async function BriefCard({ id, convo }: { id: number; convo: Conversation }) {
                 <a className="text-accent hover:underline" href={`mailto:${overview.visitorEmail ?? convo.visitorEmail}`}>
                   {overview.visitorEmail ?? convo.visitorEmail}
                 </a>
+              ) : (
+                "—"
+              )}
+            </span>
+            <span className="text-secondary">
+              <span className="text-tertiary">WhatsApp:</span>{" "}
+              {overview.visitorWhatsapp ? (
+                whatsappLink(overview.visitorWhatsapp) ? (
+                  <a
+                    className="text-emerald-400 hover:underline"
+                    href={whatsappLink(overview.visitorWhatsapp)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {overview.visitorWhatsapp}
+                  </a>
+                ) : (
+                  overview.visitorWhatsapp
+                )
               ) : (
                 "—"
               )}

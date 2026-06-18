@@ -23,6 +23,7 @@ function parseOverview(text: string): ProjectOverview | null {
     return {
       visitorName: str(o.visitorName),
       visitorEmail: str(o.visitorEmail),
+      visitorWhatsapp: str(o.visitorWhatsapp),
       projectType: str(o.projectType),
       summary: typeof o.summary === "string" ? o.summary : "",
       goals: strArr(o.goals),

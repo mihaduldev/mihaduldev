@@ -19,6 +19,15 @@ export function isImageCover(cover: string | null | undefined): cover is string 
   return typeof cover === "string" && /^https?:\/\//.test(cover);
 }
 
+/** Builds a wa.me click-to-chat URL from a raw WhatsApp/phone number, or null if
+ *  it lacks enough digits to be dialable (wa.me needs the country code, no +). */
+export function whatsappLink(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 8) return null;
+  return `https://wa.me/${digits}`;
+}
+
 /** Inserts on-the-fly format/quality optimization into a Cloudinary URL so we
  *  serve modern, right-sized images. No-op for non-Cloudinary URLs. */
 export function cldOptimize(url: string, transform = "f_auto,q_auto"): string {

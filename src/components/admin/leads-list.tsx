@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Clock, MessageSquare, ArrowRight } from "lucide-react";
+import { Mail, Clock, MessageSquare, ArrowRight, MessageCircle } from "lucide-react";
 import type { Conversation } from "@/server/db/conversations";
+import { whatsappLink } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { InfiniteList } from "@/components/admin/infinite-list";
@@ -46,6 +47,16 @@ export function LeadsList({ initial, total }: { initial: Conversation[]; total: 
                   <span className="inline-flex items-center gap-1 text-xs text-accent">
                     <Mail className="size-3" /> {c.overview?.visitorEmail ?? c.visitorEmail}
                   </span>
+                )}
+                {whatsappLink(c.overview?.visitorWhatsapp) && (
+                  <a
+                    href={whatsappLink(c.overview?.visitorWhatsapp)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"
+                  >
+                    <MessageCircle className="size-3" /> WhatsApp
+                  </a>
                 )}
               </div>
               <p className="mt-1.5 line-clamp-2 text-sm text-tertiary">

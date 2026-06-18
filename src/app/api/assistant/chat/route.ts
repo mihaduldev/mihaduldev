@@ -7,9 +7,23 @@ import {
   lastMessageWithin,
   addMessages,
   rateAllow,
+  findConversationBySession,
 } from "@/server/db/conversations";
 
 export const runtime = "nodejs";
+
+/** Lightweight existence check (read-only). The widget calls this when it opens
+ *  so it can clear a stale local transcript if the admin deleted the lead. */
+export async function GET(req: Request) {
+  const sessionId = new URL(req.url).searchParams.get("sessionId") ?? "";
+  if (!SESSION_RE.test(sessionId)) {
+    return NextResponse.json({ exists: false, conversationId: null });
+  }
+  const convo = await findConversationBySession(sessionId);
+  // Only a thread with messages counts — matches how leads are listed.
+  const exists = !!convo && convo.messageCount > 0;
+  return NextResponse.json({ exists, conversationId: convo?.id ?? null });
+}
 
 const MAX_LEN = 1500; // per-message character cap
 const MAX_MESSAGES = 60; // total messages (≈30 turns) per conversation

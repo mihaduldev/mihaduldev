@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { Bot, X, Send, Loader2, Sparkles } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { ChevronDown, X, Send, Loader2, RotateCcw } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 import { ChatMarkdown } from "@/components/assistant/chat-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -17,6 +18,8 @@ const GREETING: Msg = {
     "Hi! I'm Mihadul's assistant. Ask me anything about his skills, experience, or how he works — or tell me about a project you have in mind and I'll gather the details so he can follow up.",
 };
 
+const CHIPS = ["What's his .NET stack?", "Show recent projects", "Start a project brief"];
+
 function makeSession() {
   try {
     if (crypto?.randomUUID) return crypto.randomUUID().replace(/-/g, "");
@@ -24,6 +27,31 @@ function makeSession() {
     /* ignore */
   }
   return `s${Math.abs(Date.now()).toString(36)}${Math.floor(performance.now()).toString(36)}xpad`;
+}
+
+/** Mihadul's logomark as the assistant identity — used in the header and beside
+ *  every reply. A radar pulse appears ONLY while the AI is thinking (loading), so
+ *  the scrollback never carries a column of competing infinite rings. */
+function BrandAvatar({ size = "sm", loading = false }: { size?: "sm" | "md"; loading?: boolean }) {
+  const mark = size === "md" ? "size-9 rounded-xl" : "size-7 rounded-lg";
+  const radius = size === "md" ? "rounded-xl" : "rounded-lg";
+  return (
+    <span aria-hidden className="relative grid shrink-0 place-items-center">
+      <BrandMark className={mark} />
+      {loading && (
+        <>
+          <span
+            className={`pointer-events-none absolute inset-0 ${radius} ring-1 ring-react-cyan/50 motion-reduce:hidden`}
+            style={{ animation: "aurora-pulse 1.8s ease-in-out infinite" }}
+          />
+          <span
+            className={`pointer-events-none absolute inset-0 ${radius} ring-1 ring-react-cyan/40 motion-reduce:hidden`}
+            style={{ animation: "aurora-pulse 1.8s ease-in-out infinite", animationDelay: "0.9s" }}
+          />
+        </>
+      )}
+    </span>
+  );
 }
 
 export function ChatWidget() {
@@ -38,6 +66,7 @@ export function ChatWidget() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const prevOpen = useRef(false);
+  const reduce = useReducedMotion();
 
   // restore session + transcript
   useEffect(() => {
@@ -91,11 +120,60 @@ export function ChatWidget() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  async function send() {
-    const text = input.trim();
+  // On open, verify the stored conversation still exists server-side. If the
+  // admin deleted this lead, wipe the stale local transcript so the visitor sees
+  // a fresh start instead of a deleted thread. (No-op for first-time visitors.)
+  useEffect(() => {
+    if (!open) return;
+    const session = sessionRef.current;
+    const cid = cidRef.current;
+    if (!session || cid == null) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/assistant/chat?sessionId=${encodeURIComponent(session)}`);
+        if (!res.ok || cancelled) return;
+        const data = (await res.json()) as { exists?: boolean; conversationId?: number | null };
+        if (cancelled) return;
+        const gone =
+          !data.exists ||
+          (typeof data.conversationId === "number" && data.conversationId !== cid);
+        if (gone) {
+          cidRef.current = null;
+          try {
+            localStorage.removeItem(MSGS_KEY);
+            localStorage.removeItem(CID_KEY);
+          } catch {
+            /* ignore */
+          }
+          setMessages([GREETING]);
+        }
+      } catch {
+        /* keep history on network error */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  function newChat() {
+    if (loading) return;
+    setMessages([GREETING]);
+    setError("");
+    try {
+      localStorage.removeItem(MSGS_KEY);
+    } catch {
+      /* ignore */
+    }
+    inputRef.current?.focus();
+  }
+
+  async function send(textArg?: string) {
+    const text = (textArg ?? input).trim();
     if (!text || loading) return;
     setError("");
-    setInput("");
+    if (textArg == null) setInput("");
     setMessages((m) => [...m, { role: "user", content: text }]);
     setLoading(true);
     try {
@@ -135,22 +213,26 @@ export function ChatWidget() {
       // Typewriter reveal — finishes in ~2s regardless of length, so it reads
       // like a streaming chatbot while the request itself stays non-streaming.
       const reply = data.reply;
-      const step = Math.max(2, Math.ceil(reply.length / 140));
-      setMessages((m) => [...m, { role: "assistant", content: reply.slice(0, step) }]);
-      for (let i = step * 2; i < reply.length; i += step) {
-        await new Promise((r) => setTimeout(r, 16));
-        const slice = reply.slice(0, i);
+      if (reduce) {
+        setMessages((m) => [...m, { role: "assistant", content: reply }]);
+      } else {
+        const step = Math.max(2, Math.ceil(reply.length / 140));
+        setMessages((m) => [...m, { role: "assistant", content: reply.slice(0, step) }]);
+        for (let i = step * 2; i < reply.length; i += step) {
+          await new Promise((r) => setTimeout(r, 16));
+          const slice = reply.slice(0, i);
+          setMessages((m) => {
+            const c = [...m];
+            c[c.length - 1] = { role: "assistant", content: slice };
+            return c;
+          });
+        }
         setMessages((m) => {
           const c = [...m];
-          c[c.length - 1] = { role: "assistant", content: slice };
+          c[c.length - 1] = { role: "assistant", content: reply };
           return c;
         });
       }
-      setMessages((m) => {
-        const c = [...m];
-        c[c.length - 1] = { role: "assistant", content: reply };
-        return c;
-      });
     } catch {
       setError("Network error — please try again.");
       setMessages((m) => [
@@ -169,9 +251,14 @@ export function ChatWidget() {
     }
   }
 
+  const lastIdx = messages.length - 1;
+  // length+role check (not GREETING reference) so chips survive a localStorage reload
+  const showChips = messages.length === 1 && messages[0]?.role === "assistant" && !loading;
+  const showTyping = loading && messages[lastIdx]?.role !== "assistant";
+
   return (
     <>
-      {/* launcher */}
+      {/* launcher — a squircle that frames Mihadul's logomark, not a generic bot */}
       <motion.button
         ref={launcherRef}
         type="button"
@@ -181,24 +268,37 @@ export function ChatWidget() {
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 1, type: "spring", stiffness: 200, damping: 16 }}
-        whileHover={{ y: -2 }}
-        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-brand-foreground shadow-[var(--glow-lg)] transition-shadow hover:shadow-[0_0_40px_var(--glow)]"
+        whileHover={{ y: -3 }}
+        whileTap={{ scale: 0.94 }}
+        className="fixed bottom-5 right-5 z-50 grid size-14 place-items-center rounded-2xl glass-strong glow-ring shadow-[var(--glow-lg)] transition-shadow hover:shadow-[0_0_44px_var(--glow)]"
       >
+        <span aria-hidden className="aurora-edge motion-reduce:hidden" />
         <AnimatePresence mode="wait" initial={false}>
           {open ? (
-            <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-              <X className="size-6" />
+            <motion.span
+              key="close"
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              className="text-primary"
+            >
+              <ChevronDown className="size-6" />
             </motion.span>
           ) : (
-            <motion.span key="bot" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-              <Bot className="size-6" />
+            <motion.span
+              key="mark"
+              initial={{ rotate: 90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: -90, opacity: 0 }}
+            >
+              <BrandMark className="size-7" />
             </motion.span>
           )}
         </AnimatePresence>
         {!open && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-emerald-400 ring-2 ring-wash" />
+          <span className="absolute -right-1 -top-1 grid size-2.5 place-items-center">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-react-cyan/60 motion-safe:animate-[pulse-glow_2.4s_ease-in-out_infinite]" />
+            <span className="relative size-2.5 rounded-full bg-react-cyan shadow-[var(--glow-sm)] ring-2 ring-wash" />
           </span>
         )}
       </motion.button>
@@ -213,68 +313,146 @@ export function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            className="glass-strong fixed bottom-24 right-3 z-50 flex h-[min(34rem,75vh)] w-[min(24rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-3xl glow-ring sm:right-5"
+            className="glass-strong fixed bottom-24 right-3 z-50 flex h-[min(36rem,78vh)] w-[min(25rem,calc(100vw-1.5rem))] origin-bottom-right flex-col overflow-hidden rounded-[1.75rem] glow-ring shadow-[var(--glow-md)] sm:right-5"
           >
+            {/* ambient depth — drifting aurora (reuses the page's own glow palette) */}
+            <span
+              aria-hidden
+              className="aurora-blob pointer-events-none absolute -left-1/4 -top-1/4 -z-0 size-[120%] rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--glow)_34%,transparent),transparent)] opacity-30 blur-2xl will-change-transform motion-safe:animate-[drift_18s_ease-in-out_infinite] dark:opacity-30"
+            />
+            <span
+              aria-hidden
+              className="aurora-blob pointer-events-none absolute -bottom-1/4 -right-1/4 -z-0 size-[120%] rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--brand)_28%,transparent),transparent)] opacity-25 blur-2xl will-change-transform motion-safe:animate-[drift_22s_ease-in-out_infinite_reverse] dark:opacity-30"
+            />
+            <span aria-hidden className="grain pointer-events-none absolute inset-0 -z-0 opacity-[0.16]" />
+            <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-24 bg-gradient-to-b from-white/10 to-transparent" />
+
             {/* persistent live region (announces replies / thinking to SRs) */}
             <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
               {loading
-                ? "Assistant is thinking…"
-                : messages[messages.length - 1]?.role === "assistant"
-                  ? messages[messages.length - 1].content
+                ? "Mihadul's assistant is composing a reply…"
+                : messages[lastIdx]?.role === "assistant"
+                  ? messages[lastIdx].content
                   : ""}
             </div>
 
-            {/* header */}
-            <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand to-react-cyan text-brand-foreground">
-                <Sparkles className="size-[18px]" />
-              </span>
+            {/* header — identity lockup */}
+            <div className="relative z-10 flex items-center gap-3 border-b border-border px-4 py-3.5">
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+              <BrandAvatar size="md" loading={loading} />
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-primary">Mihadul&apos;s Assistant</p>
-                <p className="flex items-center gap-1.5 text-[11px] text-tertiary">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  Asks &amp; answers · gathers project details
+                <p className="font-display text-sm font-semibold leading-tight text-primary">Mihadul Islam</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-tertiary">
+                  Full-Stack .NET Engineer
+                </p>
+                <p className="mt-0.5 flex items-center gap-1.5 text-[10px] font-medium text-secondary">
+                  <span className="size-1.5 rounded-full bg-react-cyan shadow-[var(--glow-sm)]" />
+                  {loading ? "Thinking…" : "Available for new work"}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close"
-                className="ml-auto flex h-8 w-8 items-center justify-center rounded-full text-tertiary transition-colors hover:bg-card hover:text-primary"
-              >
-                <X className="size-4" />
-              </button>
+              <div className="ml-auto flex items-center gap-1">
+                <span className="mr-0.5 font-mono text-[10px] text-tertiary/70">v1</span>
+                <button
+                  type="button"
+                  onClick={newChat}
+                  aria-label="Start new chat"
+                  title="Start new chat"
+                  className="grid size-8 place-items-center rounded-full text-tertiary transition-colors hover:bg-white/5 hover:text-primary"
+                >
+                  <RotateCcw className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close (Escape)"
+                  className="grid size-8 place-items-center rounded-full text-tertiary transition-colors hover:bg-white/5 hover:text-primary"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
             </div>
 
             {/* messages */}
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+            <div ref={scrollRef} className="relative z-10 flex-1 space-y-3 overflow-y-auto px-4 py-4">
+              {/* faint scrim keeps text legible over the brightest aurora */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -z-0 bg-[color-mix(in_srgb,var(--card)_30%,transparent)] dark:bg-[color-mix(in_srgb,var(--card)_52%,transparent)]"
+              />
               {messages.map((m, i) =>
                 m.role === "user" ? (
-                  <div key={i} className="flex justify-end">
-                    <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-sm text-brand-foreground">
+                  <motion.div
+                    key={i}
+                    initial={reduce ? false : { opacity: 0, y: 8, x: 6 }}
+                    animate={{ opacity: 1, y: 0, x: 0 }}
+                    transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                    className="relative flex justify-end"
+                  >
+                    <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-sm font-medium text-brand-foreground shadow-[var(--glow-sm)]">
                       {m.content}
                     </div>
-                  </div>
+                  </motion.div>
                 ) : (
-                  <div key={i} className="flex justify-start">
-                    <div className="max-w-[88%] break-words rounded-2xl rounded-bl-md glass px-3.5 py-2.5 text-sm leading-relaxed text-secondary [&_a]:break-all">
-                      <ChatMarkdown>{m.content}</ChatMarkdown>
+                  <motion.div
+                    key={i}
+                    initial={reduce ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                    className="relative flex items-start gap-2.5"
+                  >
+                    <BrandAvatar size="sm" />
+                    <div className="min-w-0">
+                      {i === 0 && (
+                        <p className="mb-1 ml-0.5 font-display text-[10px] font-medium text-tertiary">
+                          Mihadul Islam
+                        </p>
+                      )}
+                      <div className="relative max-w-full break-words rounded-2xl rounded-tl-md glass px-3.5 py-2.5 pl-4 text-sm leading-relaxed text-secondary before:absolute before:inset-y-2 before:left-0 before:w-[2px] before:rounded-full before:bg-gradient-to-b before:from-accent before:to-react-cyan before:opacity-60 [&_a]:break-all [&_a]:text-accent [&_a]:underline-offset-2 [&_strong]:text-primary">
+                        <ChatMarkdown>{m.content}</ChatMarkdown>
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )
               )}
-              {loading && messages[messages.length - 1]?.role !== "assistant" && (
-                <div className="flex justify-start">
-                  <div className="flex items-center gap-2 rounded-2xl rounded-bl-md glass px-3.5 py-2.5 text-sm text-tertiary">
-                    <Loader2 className="size-3.5 animate-spin" /> thinking…
+
+              {showTyping && (
+                <div className="relative flex items-center gap-2.5">
+                  <BrandAvatar size="sm" loading />
+                  <div className="rounded-2xl rounded-tl-md glass px-3.5 py-2.5 text-sm text-tertiary">
+                    composing a reply…
                   </div>
                 </div>
               )}
             </div>
 
-            {/* input */}
-            <div className="border-t border-border p-3">
-              <div className="flex items-end gap-2 rounded-2xl border border-border bg-primary/[0.03] p-1.5 focus-within:border-accent">
+            {/* composer */}
+            <div className="relative z-10 border-t border-border p-3">
+              <AnimatePresence>
+                {showChips && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mb-2 flex flex-wrap gap-2 overflow-hidden px-0.5"
+                  >
+                    {CHIPS.map((c, i) => (
+                      <motion.button
+                        key={c}
+                        type="button"
+                        onClick={() => send(c)}
+                        initial={reduce ? false : { opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.06 }}
+                        className="glass rounded-full border border-border px-3 py-1.5 text-xs text-secondary transition-colors hover:border-accent hover:text-primary"
+                      >
+                        {c}
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="flex items-end gap-2 rounded-2xl glass p-1.5 transition-colors focus-within:border-accent focus-within:shadow-[var(--glow-sm)] focus-within:ring-1 focus-within:ring-accent/30">
                 <label htmlFor="chat-input" className="sr-only">
                   Message Mihadul&apos;s assistant
                 </label>
@@ -285,22 +463,23 @@ export function ChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={onKeyDown}
-                  placeholder="Ask about Mihadul, or describe your project…"
+                  placeholder="Write to the studio — your idea, a role, or a question…"
                   className="max-h-28 flex-1 resize-none bg-transparent px-2.5 py-1.5 text-sm text-primary outline-none placeholder:text-tertiary"
                 />
-                <button
+                <motion.button
                   type="button"
-                  onClick={send}
+                  onClick={() => send()}
                   disabled={loading || !input.trim()}
-                  aria-label="Send message"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-brand-foreground transition-all hover:shadow-[var(--glow-sm)] disabled:opacity-50"
+                  aria-label="Send message (Enter)"
+                  whileTap={{ scale: 0.92 }}
+                  className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand to-react-cyan text-brand-foreground transition-all hover:shadow-[var(--glow-md)] disabled:opacity-50"
                 >
                   {loading ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                </button>
+                </motion.button>
               </div>
               {error && <p role="alert" className="mt-1.5 px-1 text-[11px] text-red-400">{error}</p>}
               <p className="mt-1.5 px-1 text-center text-[10px] text-tertiary">
-                AI assistant · may be imperfect. Shared details reach Mihadul.
+                AI-assisted · may be imperfect. Anything you share reaches Mihadul directly.
               </p>
             </div>
           </motion.div>
