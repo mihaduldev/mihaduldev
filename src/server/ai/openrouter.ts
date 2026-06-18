@@ -2,6 +2,20 @@ import { getEnv } from "@/server/db/client";
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
+/** OpenRouter reasoning controls. For gpt-oss reasoning models, lowering the
+ *  effort frees the token budget for the actual answer (high effort can consume
+ *  the whole max_tokens on hidden reasoning and return empty content). */
+export type ReasoningOpts = { effort?: "low" | "medium" | "high"; exclude?: boolean };
+
+export type ChatOpts = {
+  temperature?: number;
+  maxTokens?: number;
+  reasoning?: ReasoningOpts;
+  /** Per-request abort timeout. Long generations (e.g. full article drafts) need
+   *  more than the chat default — a 1000-word draft can take 20-30s on free models. */
+  timeoutMs?: number;
+};
+
 // 20B is fast and reliable for chat + extraction. The 120B reasoning model can
 // stall for many seconds before producing content, so it's a last-resort fallback.
 const DEFAULT_MODEL = "openai/gpt-oss-20b:free";
@@ -34,10 +48,10 @@ async function callModel(
   apiKey: string,
   model: string,
   messages: ChatMessage[],
-  opts?: { temperature?: number; maxTokens?: number }
+  opts?: ChatOpts
 ): Promise<string> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000);
+  const timer = setTimeout(() => ctrl.abort(), opts?.timeoutMs ?? 25000);
   try {
     const res = await fetch(ENDPOINT, {
       method: "POST",
@@ -54,6 +68,7 @@ async function callModel(
         messages,
         temperature: opts?.temperature ?? 0.5,
         max_tokens: opts?.maxTokens ?? 700,
+        ...(opts?.reasoning ? { reasoning: opts.reasoning } : {}),
       }),
     });
     if (!res.ok) {
@@ -73,7 +88,7 @@ async function callModel(
  *  is rate-limited/unavailable. Throws if all attempts fail. */
 export async function chatComplete(
   messages: ChatMessage[],
-  opts?: { temperature?: number; maxTokens?: number }
+  opts?: ChatOpts
 ): Promise<string> {
   const { apiKey, model } = await creds();
   if (!apiKey) throw new Error("OPENROUTER_API_KEY is not configured");

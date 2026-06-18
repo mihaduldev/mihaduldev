@@ -19,6 +19,11 @@ declare global {
     NEXT_PUBLIC_CF_BEACON?: string;
     OPENROUTER_API_KEY?: string;
     OPENROUTER_MODEL?: string;
+    // Cloudinary (blog images + covers). Cloud name + key are sent to the
+    // authenticated admin client for signed direct uploads; the secret never is.
+    CLOUDINARY_CLOUD_NAME?: string;
+    CLOUDINARY_API_KEY?: string;
+    CLOUDINARY_API_SECRET?: string;
   }
 }
 

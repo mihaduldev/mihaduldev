@@ -25,3 +25,12 @@ OPENROUTER_API_KEY=sk-or-v1-...
 # Any chat model; a capable free one is recommended (falls back automatically
 # if rate-limited). See https://openrouter.ai/models?max_price=0
 OPENROUTER_MODEL=openai/gpt-oss-20b:free
+
+# Cloudinary — hosts blog body images and cover images. The admin uploads
+# directly from the browser via a server-signed request (the secret never
+# reaches the client). Get these from the Cloudinary Dashboard (Settings → API
+# Keys). In production: `wrangler secret put CLOUDINARY_API_SECRET` (and set the
+# cloud name + api key the same way, or as plain vars).
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=

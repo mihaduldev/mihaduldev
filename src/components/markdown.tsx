@@ -1,5 +1,6 @@
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { cldOptimize } from "@/lib/utils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const md = {
@@ -33,6 +34,17 @@ const md = {
     <pre className="mt-6 overflow-x-auto rounded-xl border border-border bg-wash-2 p-4 font-mono text-sm dark:bg-black/40" {...p} />
   ),
   hr: () => <hr className="my-10 border-border" />,
+  img: ({ node, src, alt, ...p }: any) =>
+    typeof src === "string" && src ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={cldOptimize(src)}
+        alt={alt ?? ""}
+        loading="lazy"
+        className="my-7 w-full rounded-xl border border-border"
+        {...p}
+      />
+    ) : null,
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 

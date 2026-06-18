@@ -6,7 +6,7 @@ import { listPublishedPosts, getPublishedPostBySlug } from "@/server/db/posts";
 import { listComments } from "@/server/db/comments";
 import { getReactionCounts } from "@/server/db/reactions";
 import { profile } from "@/lib/data";
-import { formatDate } from "@/lib/utils";
+import { formatDate, isImageCover, cldOptimize } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/json-ld";
 import { PostBody } from "@/components/markdown";
 import { PostComments } from "@/components/blog/post-comments";
@@ -36,6 +36,8 @@ export async function generateMetadata({
       type: "article",
       url: `/blog/${post.slug}`,
       publishedTime: post.publishedAt ?? undefined,
+      // Use the uploaded cover as the social card; otherwise the site default.
+      images: isImageCover(post.cover) ? [{ url: cldOptimize(post.cover) }] : undefined,
     },
   };
 }
@@ -67,7 +69,9 @@ export default async function BlogPostPage({
           datePublished: post.publishedAt ?? undefined,
           dateModified: post.publishedAt ?? undefined,
           keywords: post.tags.join(", "),
-          image: { "@type": "ImageObject", url: `${site}/opengraph-image`, width: 1200, height: 630 },
+          image: isImageCover(post.cover)
+            ? cldOptimize(post.cover)
+            : { "@type": "ImageObject", url: `${site}/opengraph-image`, width: 1200, height: 630 },
           inLanguage: "en",
           author: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
           publisher: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
@@ -99,7 +103,18 @@ export default async function BlogPostPage({
         All posts
       </Link>
 
-      <div className={`mt-8 h-1.5 w-24 rounded-full bg-gradient-to-r ${post.cover} shadow-[0_0_18px_var(--glow)]`} />
+      {isImageCover(post.cover) ? (
+        <div className="mt-8 overflow-hidden rounded-2xl border border-border">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={cldOptimize(post.cover)}
+            alt={post.title}
+            className="aspect-[2/1] w-full object-cover"
+          />
+        </div>
+      ) : (
+        <div className={`mt-8 h-1.5 w-24 rounded-full bg-gradient-to-r ${post.cover} shadow-[0_0_18px_var(--glow)]`} />
+      )}
 
       <div className="mt-7 flex flex-wrap gap-2">
         {post.tags.map((tag) => (

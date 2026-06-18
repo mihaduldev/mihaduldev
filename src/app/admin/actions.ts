@@ -26,6 +26,12 @@ import {
 } from "@/server/db/skills";
 import { createPost, updatePost, deletePost, type PostInput } from "@/server/db/posts";
 import {
+  suggestPostFields,
+  type SuggestInput,
+  type SuggestResult,
+} from "@/server/ai/blog-suggest";
+import { signUpload, type CloudinarySignResult } from "@/server/cloudinary";
+import {
   createTestimonial,
   updateTestimonial,
   deleteTestimonial,
@@ -173,6 +179,20 @@ export async function removePost(fd: FormData) {
   await deletePost(num(fd, "id"));
   refresh("/admin/blog", "/blog");
   redirect("/admin/blog");
+}
+
+/** AI assist for the blog editor — draft a post from a topic, or suggest
+ *  title/slug/excerpt/tags/reading-time from the current body. Admin only. */
+export async function suggestPost(input: SuggestInput): Promise<SuggestResult> {
+  await assertAdmin();
+  return suggestPostFields(input);
+}
+
+/** Issues a short-lived Cloudinary signature so the admin can upload blog images
+ *  (body + cover) directly from the browser. The secret stays server-side. */
+export async function signImageUpload(folder?: string): Promise<CloudinarySignResult> {
+  await assertAdmin();
+  return signUpload(folder);
 }
 
 /* ---------------- Testimonials ---------------- */

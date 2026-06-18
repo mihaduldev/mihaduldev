@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, Clock } from "lucide-react";
 import { listPublishedPosts } from "@/server/db/posts";
-import { formatDate } from "@/lib/utils";
+import { formatDate, isImageCover, cldOptimize } from "@/lib/utils";
 
 export const revalidate = 3600;
 
@@ -51,7 +51,21 @@ export default async function BlogIndexPage() {
               href={`/blog/${post.slug}`}
               className="group flex h-full flex-col overflow-hidden rounded-2xl glass transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_40px_-12px_var(--glow)]"
             >
-              <div className={`relative h-44 bg-gradient-to-br ${post.cover}`}>
+              <div className="relative h-44">
+                {isImageCover(post.cover) ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={cldOptimize(post.cover)}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-bl from-black/30 to-transparent" />
+                  </>
+                ) : (
+                  <div className={`h-full w-full bg-gradient-to-br ${post.cover}`} />
+                )}
                 <ArrowUpRight className="absolute right-4 top-4 size-5 text-white/85 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
               </div>
               <div className="flex flex-1 flex-col p-6">

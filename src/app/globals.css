@@ -7,6 +7,7 @@
   Light = airy white; Dark = luminous midnight where the cyan glows.
 */
 :root {
+  color-scheme: light; /* native controls (select popups, scrollbars) match theme */
   --wash: #ffffff;
   --wash-2: #f6f7f9;
   --card: #f6f7f9;
@@ -55,6 +56,7 @@
 */
 
 .dark {
+  color-scheme: dark;
   --wash: #080b12; /* deep space */
   --wash-2: #0e131d;
   --card: #121826;
@@ -167,6 +169,12 @@
 
   ::selection {
     background-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: var(--primary);
+  }
+
+  /* native <select> dropdown options — readable in both themes */
+  select option {
+    background-color: var(--card);
     color: var(--primary);
   }
 

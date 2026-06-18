@@ -1,20 +1,11 @@
 import Link from "next/link";
 import { listAllPosts } from "@/server/db/posts";
-import { savePost, removePost } from "@/app/admin/actions";
-import { PageHeader, AdminCard, Field, field } from "@/components/admin/ui";
-import { SubmitButton } from "@/components/admin/submit-button";
-import { TagInput } from "@/components/admin/tag-input";
+import { removePost } from "@/app/admin/actions";
+import { PageHeader, AdminCard } from "@/components/admin/ui";
 import { ConfirmButton } from "@/components/admin/confirm-button";
-import { MarkdownEditor } from "@/components/admin/markdown-editor";
+import { PostForm } from "@/components/admin/post-form";
 
 export const dynamic = "force-dynamic";
-
-const COVERS = [
-  "from-[#087EA4] to-[#58C4DC]",
-  "from-[#512BD4] to-[#087EA4]",
-  "from-[#58C4DC] to-[#61DAFB]",
-  "from-[#0052CC] to-[#3178C6]",
-];
 
 export default async function BlogAdmin({
   searchParams,
@@ -33,60 +24,7 @@ export default async function BlogAdmin({
       <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
         <AdminCard className="self-start">
           <h2 className="font-semibold text-primary">{editing ? "Edit post" : "New post"}</h2>
-          <form key={editing?.id ?? "new"} action={savePost} className="mt-4 space-y-4">
-            {editing && <input type="hidden" name="id" defaultValue={editing.id} />}
-            <Field label="Title">
-              <input name="title" required defaultValue={editing?.title} className={field} />
-            </Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Slug" hint="url path; auto-cleaned">
-                <input name="slug" required defaultValue={editing?.slug} className={field} placeholder="my-post" />
-              </Field>
-              <Field label="Reading time">
-                <input name="readingTime" defaultValue={editing?.readingTime ?? "5 min read"} className={field} />
-              </Field>
-            </div>
-            <Field label="Excerpt">
-              <textarea name="excerpt" rows={2} defaultValue={editing?.excerpt} className={field} />
-            </Field>
-            <Field label="Tags" hint="comma separated">
-              <TagInput name="tags" defaultValue={editing?.tags ?? []} placeholder=".NET, Architecture" />
-            </Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Cover gradient">
-                <select name="cover" defaultValue={editing?.cover ?? COVERS[0]} className={field}>
-                  {COVERS.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Publish date">
-                <input
-                  name="publishedAt"
-                  type="date"
-                  defaultValue={editing?.publishedAt ?? new Date().toISOString().slice(0, 10)}
-                  className={field}
-                />
-              </Field>
-            </div>
-            <Field label="Body (Markdown)">
-              <MarkdownEditor key={editing?.id ?? "new"} defaultValue={editing?.bodyMd} />
-            </Field>
-            <label className="flex items-center gap-2 text-sm text-secondary">
-              <input type="checkbox" name="published" defaultChecked={editing ? editing.published : true} className="size-4 accent-[var(--accent)]" />
-              Published (visible on the public blog)
-            </label>
-            <div className="flex items-center gap-3 pt-1">
-              <SubmitButton>{editing ? "Save changes" : "Create post"}</SubmitButton>
-              {editing && (
-                <Link href="/admin/blog" className="text-sm text-tertiary hover:text-primary">
-                  Cancel
-                </Link>
-              )}
-            </div>
-          </form>
+          <PostForm key={editing?.id ?? "new"} editing={editing} />
         </AdminCard>
 
         <div className="space-y-3">
