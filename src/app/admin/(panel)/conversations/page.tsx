@@ -12,6 +12,7 @@ import { getOrGenerateOverview } from "@/server/ai/overview";
 import { removeConversation } from "@/app/admin/actions";
 import { PageHeader, AdminCard } from "@/components/admin/ui";
 import { whatsappLink } from "@/lib/utils";
+import { ChatMarkdown } from "@/components/assistant/chat-markdown";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { LeadsList } from "@/components/admin/leads-list";
 import { ADMIN_PAGE_SIZE } from "@/components/admin/infinite-list";
@@ -185,19 +186,21 @@ export default async function ConversationsAdmin({
               <span className="text-xs text-tertiary">{messages.length} messages · {fmt(convo.updatedAt)}</span>
             </div>
             <div className="mt-4 space-y-3">
-              {messages.map((m, i) => (
-                <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                  <div
-                    className={
-                      m.role === "user"
-                        ? "max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent/90 px-3.5 py-2 text-sm text-brand-foreground"
-                        : "max-w-[88%] whitespace-pre-wrap break-words rounded-2xl rounded-bl-md border border-border bg-primary/[0.03] px-3.5 py-2 text-sm leading-relaxed text-secondary"
-                    }
-                  >
-                    {m.content}
+              {messages.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className="flex justify-end">
+                    <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-accent/90 px-3.5 py-2 text-sm text-brand-foreground">
+                      {m.content}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ) : (
+                  <div key={i} className="flex justify-start">
+                    <div className="max-w-[88%] break-words rounded-2xl rounded-bl-md border border-border bg-primary/[0.03] px-3.5 py-2 text-sm leading-relaxed text-secondary [&_a]:break-all">
+                      <ChatMarkdown>{m.content}</ChatMarkdown>
+                    </div>
+                  </div>
+                )
+              )}
             </div>
           </AdminCard>
         </div>

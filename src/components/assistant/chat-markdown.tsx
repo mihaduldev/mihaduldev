@@ -29,6 +29,18 @@ const components: Components = {
   blockquote: ({ node, ...p }: any) => (
     <blockquote className="my-2 border-l-2 border-accent/50 pl-2 italic" {...p} />
   ),
+  // GFM tables — wrapped so wide tables scroll instead of overflowing the bubble
+  table: ({ node, ...p }: any) => (
+    <div className="my-2 overflow-x-auto last:mb-0">
+      <table className="w-full border-collapse text-[0.85em]" {...p} />
+    </div>
+  ),
+  th: ({ node, ...p }: any) => (
+    <th className="border border-border px-2 py-1 text-left font-semibold text-primary" {...p} />
+  ),
+  td: ({ node, ...p }: any) => (
+    <td className="border border-border px-2 py-1 align-top" {...p} />
+  ),
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
