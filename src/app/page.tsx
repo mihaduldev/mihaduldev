@@ -3,6 +3,7 @@ import { listExperiences } from "@/server/db/experiences";
 import { listProjects } from "@/server/db/projects";
 import { listSkillGroups } from "@/server/db/skills";
 import { listPublishedPosts } from "@/server/db/posts";
+import { listTestimonials } from "@/server/db/testimonials";
 import type { Metadata } from "next";
 import { getHeroContent, getScrollSettings } from "@/server/db/settings";
 import { profile } from "@/lib/data";
@@ -68,15 +69,17 @@ const pager = [
 ];
 
 export default async function HomePage() {
-  const [stats, experiences, projects, groups, posts, hero, scroll] = await Promise.all([
-    getGithubStats(),
-    listExperiences(),
-    listProjects(),
-    listSkillGroups(),
-    listPublishedPosts(),
-    getHeroContent(),
-    getScrollSettings(),
-  ]);
+  const [stats, experiences, projects, groups, posts, testimonials, hero, scroll] =
+    await Promise.all([
+      getGithubStats(),
+      listExperiences(),
+      listProjects(),
+      listSkillGroups(),
+      listPublishedPosts(),
+      listTestimonials(),
+      getHeroContent(),
+      getScrollSettings(),
+    ]);
 
   const postCards = posts.slice(0, 3).map((p) => ({
     slug: p.slug,
@@ -113,7 +116,7 @@ export default async function HomePage() {
         <Stats stats={stats} />
       </Panel>
       <Panel id="testimonials" index={6}>
-        <Testimonials />
+        <Testimonials items={testimonials} />
       </Panel>
       <Panel id="blog" index={7}>
         <Writing posts={postCards} />

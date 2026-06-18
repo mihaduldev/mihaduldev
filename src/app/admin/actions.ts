@@ -25,6 +25,12 @@ import {
   type Skill,
 } from "@/server/db/skills";
 import { createPost, updatePost, deletePost, type PostInput } from "@/server/db/posts";
+import {
+  createTestimonial,
+  updateTestimonial,
+  deleteTestimonial,
+  type TestimonialInput,
+} from "@/server/db/testimonials";
 import { deleteComment, listAllComments } from "@/server/db/comments";
 import { deleteConversation, listConversations } from "@/server/db/conversations";
 import { listContacts } from "@/server/db/contacts";
@@ -167,6 +173,36 @@ export async function removePost(fd: FormData) {
   await deletePost(num(fd, "id"));
   refresh("/admin/blog", "/blog");
   redirect("/admin/blog");
+}
+
+/* ---------------- Testimonials ---------------- */
+function initialsFrom(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return (parts.slice(0, 2).map((p) => p[0]).join("") || "?").toUpperCase().slice(0, 2);
+}
+function testimonialInput(fd: FormData): TestimonialInput {
+  const name = str(fd, "name");
+  return {
+    quote: str(fd, "quote"),
+    name,
+    title: str(fd, "title"),
+    initials: str(fd, "initials") || initialsFrom(name),
+    sort: num(fd, "sort"),
+  };
+}
+export async function saveTestimonial(fd: FormData) {
+  await assertAdmin();
+  const id = num(fd, "id");
+  if (id) await updateTestimonial(id, testimonialInput(fd));
+  else await createTestimonial(testimonialInput(fd));
+  refresh("/admin/testimonials");
+  redirect("/admin/testimonials");
+}
+export async function removeTestimonial(fd: FormData) {
+  await assertAdmin();
+  await deleteTestimonial(num(fd, "id"));
+  refresh("/admin/testimonials");
+  redirect("/admin/testimonials");
 }
 
 /* ---------------- Comments (moderation) ---------------- */
