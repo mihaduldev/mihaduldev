@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { listPublishedPosts } from "@/server/db/posts";
+import { SITE_URL } from "@/lib/site";
 
-const base = "https://mihad.site";
+const base = SITE_URL;
 
 export const revalidate = 3600;
 

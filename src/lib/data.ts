@@ -26,7 +26,7 @@ export const profile = {
   avatar: "https://avatars.githubusercontent.com/u/mihaduldev",
   githubUsername: "mihaduldev",
   email: "mehad65@gmail.com",
-  website: "https://mihad.site",
+  website: "https://mihadul.dev",
 } as const;
 
 export const about = {
@@ -410,9 +410,9 @@ export const socials: SocialLink[] = [
   },
   {
     label: "Website",
-    href: "https://mihad.site",
+    href: "https://mihadul.dev",
     icon: "Globe",
-    handle: "mihad.site",
+    handle: "mihadul.dev",
   },
 ];
 

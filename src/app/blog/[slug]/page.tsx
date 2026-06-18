@@ -6,6 +6,7 @@ import { listPublishedPosts, getPublishedPostBySlug } from "@/server/db/posts";
 import { listComments } from "@/server/db/comments";
 import { getReactionCounts } from "@/server/db/reactions";
 import { profile } from "@/lib/data";
+import { SITE_URL } from "@/lib/site";
 import { formatDate, isImageCover, cldOptimize } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/json-ld";
 import { PostBody } from "@/components/markdown";
@@ -56,7 +57,7 @@ export default async function BlogPostPage({
     getReactionCounts(slug),
   ]);
 
-  const site = "https://mihad.site";
+  const site = SITE_URL;
 
   return (
     <article className="mx-auto max-w-3xl px-6 pb-24 pt-32 sm:pt-36">

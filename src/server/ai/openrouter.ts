@@ -60,7 +60,7 @@ async function callModel(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         // OpenRouter attribution headers (recommended; must be Latin-1)
-        "HTTP-Referer": "https://mihad.site",
+        "HTTP-Referer": "https://mihadul.dev",
         "X-Title": "Mihadul Islam Portfolio Assistant",
       },
       body: JSON.stringify({

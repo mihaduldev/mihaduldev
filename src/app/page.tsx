@@ -7,6 +7,7 @@ import { listTestimonials } from "@/server/db/testimonials";
 import type { Metadata } from "next";
 import { getHeroContent, getScrollSettings } from "@/server/db/settings";
 import { profile } from "@/lib/data";
+import { SITE_URL } from "@/lib/site";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SnapController } from "@/components/depth/snap-controller";
 import { SectionPager } from "@/components/depth/section-pager";
@@ -24,7 +25,7 @@ import { Contact } from "@/components/sections/contact";
 
 export const revalidate = 3600;
 
-const siteUrl = "https://mihad.site";
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },

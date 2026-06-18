@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SiteChrome, SiteFooter } from "@/components/site-chrome";
 import { JsonLd } from "@/components/seo/json-ld";
 import { profile, socials, skillGroups, experience } from "@/lib/data";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +25,7 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = "https://mihad.site";
+const siteUrl = SITE_URL;
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION;
 
 export const metadata: Metadata = {
