@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { resume } from "@/lib/resume";
+import { profile } from "@/lib/data";
 import { PrintButton } from "@/components/print-button";
 
 export const metadata: Metadata = {
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
     url: "/resume",
     title: `Resume · ${resume.name}`,
     description: `Resume / CV of ${resume.name} — ${resume.title}.`,
+    firstName: "Mihadul",
+    lastName: "Islam",
+    username: profile.githubUsername,
   },
 };
 

@@ -18,6 +18,13 @@ export function Hero({ content }: { content: HeroContent }) {
     animate: { opacity: 1, y: 0 },
     transition: { duration: duration.calm, delay: d, ease: easing.smooth },
   });
+  // LCP-critical text: animate transform ONLY (opacity stays 1) so the largest
+  // text paints on the first frame instead of waiting for the fade — protects LCP.
+  const rise = (d: number) => ({
+    initial: reduce ? false : { y: 16 },
+    animate: { y: 0 },
+    transition: { duration: duration.calm, delay: d, ease: easing.smooth },
+  });
 
   return (
     <div className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden">
@@ -71,9 +78,9 @@ export function Hero({ content }: { content: HeroContent }) {
             </span>
           </motion.div>
 
-          {/* WHO — strongest element */}
+          {/* WHO — strongest element (LCP) */}
           <motion.h1
-            {...fade(0.12)}
+            {...rise(0.12)}
             className="mt-6 font-display text-[clamp(2.75rem,7vw,4.5rem)] font-bold leading-[1.02] tracking-tight text-primary"
           >
             {content.name}
@@ -81,7 +88,7 @@ export function Hero({ content }: { content: HeroContent }) {
 
           {/* WHAT */}
           <motion.p
-            {...fade(0.2)}
+            {...rise(0.2)}
             className="mt-4 text-lg font-semibold leading-snug text-primary sm:text-xl"
           >
             {content.roleLead}

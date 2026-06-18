@@ -7,7 +7,7 @@ import { listTestimonials } from "@/server/db/testimonials";
 import type { Metadata } from "next";
 import { getHeroContent, getScrollSettings } from "@/server/db/settings";
 import { profile } from "@/lib/data";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, SITE_UPDATED } from "@/lib/site";
 import { JsonLd } from "@/components/seo/json-ld";
 import { SnapController } from "@/components/depth/snap-controller";
 import { SectionPager } from "@/components/depth/section-pager";
@@ -53,6 +53,7 @@ const profilePageLd = {
   isPartOf: { "@id": `${siteUrl}/#website` },
   about: { "@id": `${siteUrl}/#person` },
   mainEntity: { "@id": `${siteUrl}/#person` },
+  dateModified: SITE_UPDATED,
   inLanguage: "en",
 };
 

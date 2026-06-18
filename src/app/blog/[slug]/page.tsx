@@ -37,8 +37,19 @@ export async function generateMetadata({
       type: "article",
       url: `/blog/${post.slug}`,
       publishedTime: post.publishedAt ?? undefined,
-      // Use the uploaded cover as the social card; otherwise the site default.
-      images: isImageCover(post.cover) ? [{ url: cldOptimize(post.cover) }] : undefined,
+      modifiedTime: post.updatedAt ?? post.publishedAt ?? undefined,
+      // Uploaded cover as the social card, normalized to a 1200×630 crop so every
+      // platform renders a predictable large card; otherwise the site default.
+      images: isImageCover(post.cover)
+        ? [
+            {
+              url: cldOptimize(post.cover, "c_fill,w_1200,h_630,f_auto,q_auto"),
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ]
+        : undefined,
     },
   };
 }
@@ -68,14 +79,19 @@ export default async function BlogPostPage({
           headline: post.title,
           description: post.excerpt,
           datePublished: post.publishedAt ?? undefined,
-          dateModified: post.publishedAt ?? undefined,
+          dateModified: post.updatedAt ?? post.publishedAt ?? undefined,
           keywords: post.tags.join(", "),
           image: isImageCover(post.cover)
-            ? cldOptimize(post.cover)
+            ? {
+                "@type": "ImageObject",
+                url: cldOptimize(post.cover, "c_fill,w_1200,h_630,f_auto,q_auto"),
+                width: 1200,
+                height: 630,
+              }
             : { "@type": "ImageObject", url: `${site}/opengraph-image`, width: 1200, height: 630 },
           inLanguage: "en",
-          author: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
-          publisher: { "@type": "Person", "@id": `${site}/#person`, name: profile.name },
+          author: { "@type": "Person", "@id": `${site}/#person`, name: profile.name, url: `${site}/` },
+          publisher: { "@type": "Person", "@id": `${site}/#person`, name: profile.name, url: `${site}/` },
           mainEntityOfPage: `${site}/blog/${post.slug}`,
         }}
       />
@@ -108,8 +124,10 @@ export default async function BlogPostPage({
         <div className="mt-8 overflow-hidden rounded-2xl border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={cldOptimize(post.cover)}
+            src={cldOptimize(post.cover, "c_fill,w_1200,h_630,f_auto,q_auto")}
             alt={post.title}
+            width={1200}
+            height={630}
             className="aspect-[2/1] w-full object-cover"
           />
         </div>

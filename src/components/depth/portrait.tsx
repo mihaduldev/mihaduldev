@@ -46,8 +46,11 @@ export function Portrait() {
             src={SOURCES[srcIndex]}
             alt={`Portrait of ${profile.fullName}, ${profile.role}`}
             onError={() => setSrcIndex((i) => i + 1)}
+            width={800}
+            height={1000}
             className="h-full w-full object-cover object-center"
             loading="eager"
+            fetchPriority="high"
             decoding="async"
           />
         ) : (

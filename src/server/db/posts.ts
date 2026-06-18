@@ -11,9 +11,11 @@ export type Post = {
   readingTime: string;
   published: boolean;
   publishedAt: string | null;
+  updatedAt: string | null;
 };
 
-export type PostInput = Omit<Post, "id">;
+// updated_at is DB-managed (unixepoch() on write), so it isn't part of the input.
+export type PostInput = Omit<Post, "id" | "updatedAt">;
 
 // Used only when D1 is unavailable (plain build / sandbox); production reads D1.
 const FALLBACK_POSTS: Post[] = [
@@ -30,6 +32,7 @@ const FALLBACK_POSTS: Post[] = [
     readingTime: "8 min read",
     published: true,
     publishedAt: "2026-05-28",
+    updatedAt: null,
   },
   {
     id: 2,
@@ -44,6 +47,7 @@ const FALLBACK_POSTS: Post[] = [
     readingTime: "10 min read",
     published: true,
     publishedAt: "2026-04-15",
+    updatedAt: null,
   },
   {
     id: 3,
@@ -58,6 +62,7 @@ const FALLBACK_POSTS: Post[] = [
     readingTime: "7 min read",
     published: true,
     publishedAt: "2026-03-02",
+    updatedAt: null,
   },
 ];
 
@@ -73,6 +78,9 @@ function toPost(r: Record<string, unknown>): Post {
     readingTime: String(r.reading_time),
     published: Number(r.published) === 1,
     publishedAt: (r.published_at as string | null) ?? null,
+    // updated_at is a unix-epoch INTEGER (seconds) → ISO for dateModified / sitemap lastmod
+    updatedAt:
+      r.updated_at != null ? new Date(Number(r.updated_at) * 1000).toISOString() : null,
   };
 }
 

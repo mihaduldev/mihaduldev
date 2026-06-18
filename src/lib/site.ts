@@ -7,3 +7,8 @@ export const SITE_URL = "https://mihadul.dev";
 
 /** Bare host without the scheme — for display (e.g. the OG card, socials handle). */
 export const SITE_DOMAIN = SITE_URL.replace(/^https?:\/\//, "");
+
+/** Stable "site last meaningfully updated" date (YYYY-MM-DD) for sitemap lastmod
+ *  of non-content routes and ProfilePage dateModified. Bump on significant
+ *  changes — kept stable (not build-time) so crawlers don't learn to ignore it. */
+export const SITE_UPDATED = "2026-06-18";

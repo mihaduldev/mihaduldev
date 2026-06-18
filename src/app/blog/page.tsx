@@ -3,6 +3,9 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, Clock } from "lucide-react";
 import { listPublishedPosts } from "@/server/db/posts";
 import { formatDate, isImageCover, cldOptimize } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
+import { profile } from "@/lib/data";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const revalidate = 3600;
 
@@ -25,6 +28,38 @@ export default async function BlogIndexPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-6 pb-24 pt-32 sm:pt-36">
+      {/* Publication hub bound to the Person entity for topical authority */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          "@id": `${SITE_URL}/blog#blog`,
+          url: `${SITE_URL}/blog`,
+          name: "Writing",
+          description:
+            "Notes on .NET, software architecture, DevOps, and practical AI by Mihadul Islam.",
+          inLanguage: "en",
+          isPartOf: { "@id": `${SITE_URL}/#website` },
+          author: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: profile.name },
+          publisher: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: profile.name },
+          blogPost: posts.map((p) => ({
+            "@type": "BlogPosting",
+            headline: p.title,
+            url: `${SITE_URL}/blog/${p.slug}`,
+            datePublished: p.publishedAt ?? undefined,
+          })),
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+            { "@type": "ListItem", position: 2, name: "Writing", item: `${SITE_URL}/blog` },
+          ],
+        }}
+      />
       <Link
         href="/"
         className="inline-flex items-center gap-2 text-sm font-medium text-tertiary transition-colors hover:text-accent"
@@ -56,9 +91,11 @@ export default async function BlogIndexPage() {
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={cldOptimize(post.cover)}
+                      src={cldOptimize(post.cover, "c_fill,w_800,h_360,f_auto,q_auto")}
                       alt=""
                       loading="lazy"
+                      width={800}
+                      height={360}
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-bl from-black/30 to-transparent" />

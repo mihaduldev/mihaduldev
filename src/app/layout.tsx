@@ -35,6 +35,7 @@ export const metadata: Metadata = {
     template: `%s · ${profile.name}`,
   },
   description: `${profile.name} (also ${profile.fullName}) — ${profile.tagline}`,
+  alternates: { types: { "application/rss+xml": "/feed.xml" } },
   applicationName: `${profile.name} · Portfolio`,
   category: "technology",
   keywords: [

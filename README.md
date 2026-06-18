@@ -6,7 +6,7 @@
 
 I build reliable backend systems, clean APIs, scalable web platforms, and practical AI integrations for real business problems.
 
-[![Website](https://img.shields.io/badge/Website-mihad.site-0A66C2?style=for-the-badge&logo=google-chrome&logoColor=white)](https://mihad.site)
+[![Website](https://img.shields.io/badge/Website-mihadul.dev-0A66C2?style=for-the-badge&logo=google-chrome&logoColor=white)](https://mihadul.dev)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Mihadul%20Islam-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mihadul/)
 [![GitHub](https://img.shields.io/badge/GitHub-mihaduldev-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mihaduldev)
 [![Email](https://img.shields.io/badge/Email-mehad65%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:mehad65@gmail.com)
@@ -120,7 +120,7 @@ Practice and implementation around microservices and clean architecture concepts
 
 If you are interested in .NET engineering, cloud architecture, AI-powered applications, or practical system design, feel free to connect.
 
-- Website: [mihad.site](https://mihad.site)
+- Website: [mihadul.dev](https://mihadul.dev)
 - LinkedIn: [linkedin.com/in/mihadul](https://www.linkedin.com/in/mihadul/)
 - GitHub: [github.com/mihaduldev](https://github.com/mihaduldev)
 - Email: [mehad65@gmail.com](mailto:mehad65@gmail.com)
