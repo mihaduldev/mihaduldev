@@ -64,7 +64,7 @@ export function PostForm({ editing }: { editing: Post | null }) {
   }
 
   return (
-    <form ref={formRef} action={savePost} className="mt-4 space-y-4">
+    <form id="admin-post-form" ref={formRef} action={savePost} className="mt-4 space-y-4">
       {editing && <input type="hidden" name="id" defaultValue={editing.id} />}
 
       {/* AI assist */}
@@ -105,6 +105,11 @@ export function PostForm({ editing }: { editing: Post | null }) {
           Suggest title, excerpt &amp; tags from the body
         </button>
         {aiErr && <p role="alert" className="mt-1.5 text-xs text-red-400">{aiErr}</p>}
+        {aiLoading === "draft" && (
+          <p className="mt-1.5 text-[11px] text-accent">
+            Writing a full article — this can take up to a minute on the free model…
+          </p>
+        )}
         <p className="mt-1.5 text-[11px] text-tertiary">
           AI fills the fields below — review and edit before publishing.
         </p>
@@ -163,7 +168,7 @@ export function PostForm({ editing }: { editing: Post | null }) {
         />
       </Field>
       <Field label="Body (Markdown)">
-        <MarkdownEditor key={`body-${bodyKey}`} defaultValue={body} />
+        <MarkdownEditor key={`body-${bodyKey}`} defaultValue={body} formId="admin-post-form" />
       </Field>
       <label className="flex items-center gap-2 text-sm text-secondary">
         <input

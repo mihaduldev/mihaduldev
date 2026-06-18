@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, ImagePlus, Loader2 } from "lucide-react";
 import { PostBody } from "@/components/markdown";
 import { field } from "@/components/admin/ui";
@@ -8,9 +9,16 @@ import { uploadImage } from "@/components/admin/cloudinary-upload";
 import { cn } from "@/lib/utils";
 
 /** Markdown textarea with Write/Preview, a fullscreen mode, and image upload
- *  (button, paste, or drag-and-drop → Cloudinary). The textarea stays mounted
- *  (name="bodyMd") so the form always submits, even while previewing. */
-export function MarkdownEditor({ defaultValue = "" }: { defaultValue?: string }) {
+ *  (button, paste, or drag-and-drop → Cloudinary). The textarea keeps name="bodyMd"
+ *  so the form always submits; in fullscreen it portals to <body> (escaping the
+ *  glass card's backdrop-filter containing block) and stays form-bound via `form`. */
+export function MarkdownEditor({
+  defaultValue = "",
+  formId,
+}: {
+  defaultValue?: string;
+  formId?: string;
+}) {
   const [value, setValue] = useState(defaultValue);
   const [tab, setTab] = useState<"write" | "preview">("write");
   const [fullscreen, setFullscreen] = useState(false);
@@ -19,7 +27,7 @@ export function MarkdownEditor({ defaultValue = "" }: { defaultValue?: string })
   const taRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Lock page scroll and wire Escape-to-exit while fullscreen.
+  // Lock page scroll, wire Escape-to-exit, and focus the editor while fullscreen.
   useEffect(() => {
     if (!fullscreen) return;
     const prev = document.body.style.overflow;
@@ -28,6 +36,7 @@ export function MarkdownEditor({ defaultValue = "" }: { defaultValue?: string })
       if (e.key === "Escape") setFullscreen(false);
     };
     window.addEventListener("keydown", onKey);
+    requestAnimationFrame(() => taRef.current?.focus());
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
@@ -135,6 +144,7 @@ export function MarkdownEditor({ defaultValue = "" }: { defaultValue?: string })
       <textarea
         ref={taRef}
         name="bodyMd"
+        form={formId}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onPaste={onPaste}
@@ -178,9 +188,12 @@ export function MarkdownEditor({ defaultValue = "" }: { defaultValue?: string })
     </div>
   );
 
-  if (!fullscreen) return body;
+  if (!fullscreen || typeof document === "undefined") return body;
 
-  return (
+  // Portal to <body> so the overlay isn't trapped by the glass card's
+  // backdrop-filter containing block — only then does `fixed inset-0` mean the
+  // real viewport, and only then can the editor scroll on its own.
+  return createPortal(
     <div className="fixed inset-0 z-[120] flex flex-col bg-card p-4 sm:p-6">
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-semibold text-primary">Body — Markdown</p>
@@ -193,6 +206,7 @@ export function MarkdownEditor({ defaultValue = "" }: { defaultValue?: string })
         </button>
       </div>
       {body}
-    </div>
+    </div>,
+    document.body
   );
 }
