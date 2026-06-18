@@ -4,6 +4,10 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2024-12-30",
   "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    { "pattern": "mihadul.dev/*", "zone_name": "mihadul.dev" },
+    { "pattern": "www.mihadul.dev/*", "zone_name": "mihadul.dev" }
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
@@ -13,7 +17,7 @@
     {
       "binding": "DB",
       "database_name": "mihaduldev-db",
-      "database_id": "REPLACE_WITH_REAL_ID_AFTER_d1_create",
+      "database_id": "7b29cf2a-4293-43a1-8693-6203f36ba627",
       "migrations_dir": "migrations"
     }
   ],
