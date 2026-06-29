@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion, useTransform } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ArrowRight, Download, Github, Linkedin, Mail, Globe, MapPin } from "lucide-react";
 import { profile, socials } from "@/lib/data";
 import { ArchitectureBackground } from "@/components/depth/architecture-bg";
@@ -27,19 +28,32 @@ export function Hero({ content }: { content: HeroContent }) {
     transition: { duration: duration.calm, delay: d, ease: easing.smooth },
   });
 
-  // Cursor parallax (shared page-wide field) — layered depth: the architecture
-  // backdrop drifts (far), the portrait drifts more and tilts in 3D (near).
-  // Text stays put so the LCP headline never moves. Inert on touch/reduced-motion.
+  // Parallax: shared cursor field + scroll. The architecture backdrop drifts
+  // (far), the portrait drifts more, tilts in 3D, and both rise at different
+  // rates as you scroll away → real depth on exit. Text stays put (LCP-safe).
+  // Inert on touch/reduced-motion.
+  const heroRef = useRef<HTMLDivElement>(null);
   const { mx, my } = usePointer();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+
   const archX = useTransform(mx, (v) => v * -26);
-  const archY = useTransform(my, (v) => v * -20);
+  const archY = useTransform([my, scrollYProgress], (l) => {
+    const [p, s] = l as number[];
+    return p * -20 + s * -60;
+  });
   const portraitX = useTransform(mx, (v) => v * -44);
-  const portraitY = useTransform(my, (v) => v * -32);
+  const portraitY = useTransform([my, scrollYProgress], (l) => {
+    const [p, s] = l as number[];
+    return p * -32 + s * -130;
+  });
   const portraitRotateY = useTransform(mx, [-0.5, 0.5], [9, -9]);
   const portraitRotateX = useTransform(my, [-0.5, 0.5], [-9, 9]);
 
   return (
-    <div className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden">
+    <div
+      ref={heroRef}
+      className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden"
+    >
       {/* theme-aware stage: deep-space in dark, airy cyan-washed white in light */}
       <div
         aria-hidden
@@ -47,7 +61,11 @@ export function Hero({ content }: { content: HeroContent }) {
         style={{ background: "var(--hero-stage)" }}
       />
       {/* parallax layer — far depth (slight overscan so the drift never reveals an edge) */}
-      <motion.div aria-hidden className="absolute inset-0" style={{ x: archX, y: archY, scale: 1.06 }}>
+      <motion.div
+        aria-hidden
+        className="absolute inset-0"
+        style={reduce ? { scale: 1.06 } : { x: archX, y: archY, scale: 1.06 }}
+      >
         <ArchitectureBackground />
       </motion.div>
       {/* clean pocket behind the portrait (desktop) so the photo floats above
@@ -194,13 +212,17 @@ export function Hero({ content }: { content: HeroContent }) {
         {/* RIGHT — portrait (who, with a face = trust) — near parallax layer */}
         <div className="order-first [perspective:1200px] lg:order-last">
           <motion.div
-            style={{
-              x: portraitX,
-              y: portraitY,
-              rotateX: portraitRotateX,
-              rotateY: portraitRotateY,
-              transformStyle: "preserve-3d",
-            }}
+            style={
+              reduce
+                ? undefined
+                : {
+                    x: portraitX,
+                    y: portraitY,
+                    rotateX: portraitRotateX,
+                    rotateY: portraitRotateY,
+                    transformStyle: "preserve-3d",
+                  }
+            }
           >
             <Portrait />
           </motion.div>
