@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteChrome, SiteFooter } from "@/components/site-chrome";
+import { PointerParallaxProvider } from "@/components/depth/pointer-parallax";
 import { JsonLd } from "@/components/seo/json-ld";
 import { profile, socials, skillGroups, experience } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
@@ -168,9 +169,11 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <SiteChrome />
-          <main>{children}</main>
-          <SiteFooter />
+          <PointerParallaxProvider>
+            <SiteChrome />
+            <main>{children}</main>
+            <SiteFooter />
+          </PointerParallaxProvider>
         </ThemeProvider>
 
         <JsonLd data={jsonLd} />

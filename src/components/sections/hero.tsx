@@ -6,7 +6,7 @@ import { ArrowRight, Download, Github, Linkedin, Mail, Globe, MapPin } from "luc
 import { profile, socials } from "@/lib/data";
 import { ArchitectureBackground } from "@/components/depth/architecture-bg";
 import { Portrait } from "@/components/depth/portrait";
-import { usePointerParallax } from "@/lib/use-pointer-parallax";
+import { usePointer } from "@/components/depth/pointer-parallax";
 import { duration, easing } from "@/lib/motion";
 import type { HeroContent } from "@/server/db/settings";
 
@@ -27,22 +27,19 @@ export function Hero({ content }: { content: HeroContent }) {
     transition: { duration: duration.calm, delay: d, ease: easing.smooth },
   });
 
-  // Cursor parallax — layered depth: the architecture backdrop drifts gently
-  // (far), the portrait drifts more and tilts in 3D (near). Text stays put so
-  // the LCP headline never moves. Inert on touch / reduced-motion.
-  const { ref: heroRef, mx, my } = usePointerParallax<HTMLDivElement>();
-  const archX = useTransform(mx, (v) => v * -16);
-  const archY = useTransform(my, (v) => v * -12);
-  const portraitX = useTransform(mx, (v) => v * -30);
-  const portraitY = useTransform(my, (v) => v * -22);
-  const portraitRotateY = useTransform(mx, [-0.5, 0.5], [7, -7]);
-  const portraitRotateX = useTransform(my, [-0.5, 0.5], [-7, 7]);
+  // Cursor parallax (shared page-wide field) — layered depth: the architecture
+  // backdrop drifts (far), the portrait drifts more and tilts in 3D (near).
+  // Text stays put so the LCP headline never moves. Inert on touch/reduced-motion.
+  const { mx, my } = usePointer();
+  const archX = useTransform(mx, (v) => v * -26);
+  const archY = useTransform(my, (v) => v * -20);
+  const portraitX = useTransform(mx, (v) => v * -44);
+  const portraitY = useTransform(my, (v) => v * -32);
+  const portraitRotateY = useTransform(mx, [-0.5, 0.5], [9, -9]);
+  const portraitRotateX = useTransform(my, [-0.5, 0.5], [-9, 9]);
 
   return (
-    <div
-      ref={heroRef}
-      className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden"
-    >
+    <div className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden">
       {/* theme-aware stage: deep-space in dark, airy cyan-washed white in light */}
       <div
         aria-hidden
